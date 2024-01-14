@@ -2,9 +2,11 @@
 
 ## Description
 
-`TODO`
+Quickly spin up a splunk instance to browse through logs and tools output during your investigations.
 
 ## HOW-TO
+
+Drop your files under the appropriate folder in `artifacts/` then build and run the container.
 
 ```
 sudo docker build -t splunk4dfir .
