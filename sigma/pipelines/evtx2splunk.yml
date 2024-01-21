@@ -6,3 +6,6 @@ postprocessing:
     [{{ rule.id }}]
     description = {{ rule.description }}
     search = index=evtx | rename Event.EventData.* as *  Event.System.* as * | search {{ query }}
+  rule_conditions:
+  - type: logsource
+    product: windows
