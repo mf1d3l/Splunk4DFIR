@@ -17,7 +17,7 @@ postprocessing:
   template: |+
     [{{ rule.id }}]
     description = {{ rule.description }}
-    search = index=evtx | rename Event.EventData.* as *  Event.System.* as * | search {{ query }} | fields - _raw | collect index=notable_events source={{ rule.id }}
+    search = index=evtx | rename Event.EventData.* as *  Event.System.* as * | search {{ query }} | fields - _raw | collect index=notable_events source="{{ rule.title }}" marker="guid={{ rule.id }}"
   rule_conditions:
   - type: logsource
     product: windows
