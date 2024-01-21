@@ -2,3 +2,4 @@ artifacts/json/*
 artifacts/csv/*
 artifacts/evtx/*
 artifacts/cloudtrail/*
+sigma/rules/*

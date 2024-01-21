@@ -8,6 +8,7 @@ This is a simple quality of life improvement project built upon the amazing work
 
 - https://github.com/whikernel/evtx2splunk/tree/main
 - https://github.com/splunk/docker-splunk
+- https://github.com/SigmaHQ
 
 ## HOW-TO
 
@@ -30,4 +31,9 @@ goto: http://127.0.0.1:8000/en-US/app/launcher/home
 
 ## Sigma Rules support
 
-`WIP`
+you can import sigma rules as savedsearches using the command below
+
+```
+sudo docker build -t sigma-cli sigma/
+sudo docker run -it --name sigma-cli --rm -v ./Splunk4DFIR/default:/mnt/output -v ./sigma/rules/:/mnt/rules -v ./sigma/pipelines:/mnt/pipelines sigma-cli:latest pipenv run sigma convert -t splunk -p /mnt/pipelines/evtx2splunk.yml /mnt/rules/sigma/rules/windows/ -s  -o /mnt/output/savedsearches.conf
+```
