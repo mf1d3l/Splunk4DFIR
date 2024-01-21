@@ -27,3 +27,7 @@ goto: http://127.0.0.1:8000/en-US/app/launcher/home
 - `artifacts/csv/`: drop there arbitrary csv files
 - `artifacts/cloudtrail/`: drop there exported cloudtrail logs
 - `artifacts/evtx/`: drop there windows logs evtx files
+
+## Sigma Rules support
+
+`WIP`

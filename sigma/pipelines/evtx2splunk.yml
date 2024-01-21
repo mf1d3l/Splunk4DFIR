@@ -1,0 +1,11 @@
+name: Windows Field Mapping 
+priority: 30
+transformations:
+  - id: field_mapping
+    type: field_name_mapping
+    mapping:
+        EventID: Event.System.EventID
+    rule_conditions:
+      - type: logsource
+        product: windows
+
