@@ -1,11 +1,8 @@
-name: Windows Field Mapping 
-priority: 30
-transformations:
-  - id: field_mapping
-    type: field_name_mapping
-    mapping:
-        EventID: Event.System.EventID
-    rule_conditions:
-      - type: logsource
-        product: windows
-
+name: Splunk Alert stanza
+priority: 10
+postprocessing:
+- type: template
+  template: |+
+    [{{ rule.id }}]
+    description = {{ rule.description }}
+    search = index=evtx | rename Event.EventData.* as *  Event.System.* as * | search {{ query }}
