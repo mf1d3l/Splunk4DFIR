@@ -29,6 +29,7 @@ goto: http://127.0.0.1:8000/en-US/app/launcher/home
 - `artifacts/cloudtrail/`: drop there exported cloudtrail logs
 - `artifacts/evtx/`: drop there windows logs evtx files
 - `artifacts/zeek/`: drop there your json zeek files
+- `artifacts/suricata/`: drop there your eve.json suricata file
 
 ## Sigma Rules support
 
@@ -47,3 +48,16 @@ Drop you pcap file under `artifacts/pcap/`, then build and run the zeek containe
 sudo docker build -t zeek zeek/
 sudo docker run -it -v ./artifacts:/mnt/artifacts --name zeek --rm zeek /opt/zeek/bin/zeek -r /mnt/artifacts/pcap/packetcapture.pcapng LogAscii::use_json=T Log::default_logdir=/mnt/artifacts/zeek/
 ```
+
+## Pcap to suricata alerts
+
+Drop you pcap file under `artifacts/pcap/`, then build and run the suricata container to generate the eve.json file. 
+
+```
+sudo docker build -t suricata suricata/
+sudo docker run -it -v ./artifacts:/mnt/artifacts --name suricata --rm suricata suricata -S /var/lib/suricata/rules/suricata.rules -r /mnt/artifacts/pcap/packetcapture.pcapng -l /mnt/artifacts/suricata
+```
+
+
+
+
