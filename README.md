@@ -28,6 +28,7 @@ goto: http://127.0.0.1:8000/en-US/app/launcher/home
 - `artifacts/csv/`: drop there arbitrary csv files
 - `artifacts/cloudtrail/`: drop there exported cloudtrail logs
 - `artifacts/evtx/`: drop there windows logs evtx files
+- `artifacts/zeek/`: drop there your json zeek files
 
 ## Sigma Rules support
 
@@ -36,4 +37,13 @@ you can import sigma rules as savedsearches using the command below
 ```
 sudo docker build -t sigma-cli sigma/
 sudo docker run -it --name sigma-cli --rm -v ./Splunk4DFIR/default:/mnt/output -v ./sigma/rules/:/mnt/rules -v ./sigma/pipelines:/mnt/pipelines sigma-cli:latest pipenv run sigma convert -t splunk -p /mnt/pipelines/evtx2splunk.yml /mnt/rules/sigma/rules/windows/ -s  -o /mnt/output/savedsearches.conf
+```
+
+## Pcap to Zeek
+
+Drop you pcap file under `artifacts/pcap/`, then build and run the zeek container to generate zeek json output files. 
+
+```
+sudo docker build -t zeek zeek/
+sudo docker run -it -v ./artifacts:/mnt/artifacts --name zeek --rm zeek /opt/zeek/bin/zeek -r /mnt/artifacts/pcap/packetcapture.pcapng LogAscii::use_json=T Log::default_logdir=/mnt/artifacts/zeek/
 ```
