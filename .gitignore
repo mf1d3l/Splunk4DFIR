@@ -2,6 +2,7 @@ artifacts/json/*
 artifacts/csv/*
 artifacts/evtx/*
 artifacts/cloudtrail/*
-artifacts/pcap/*
-artifacts/zeek/*
+#artifacts/pcap/*
+#artifacts/zeek/*
+#artifacts/suricata/*
 sigma/rules/*
