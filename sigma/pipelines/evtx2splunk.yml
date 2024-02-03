@@ -277,7 +277,7 @@ postprocessing:
 - type: template
   template: |+
     [{{ rule.title }}]
-    description = {{ rule.description }}
+    description = {{ rule.description | replace('\n', ' ') }}
     search = index=evtx _index_earliest=-1h@h | rename Event.EventData.* as *  Event.System.* as * | search {{ query }} | fields - _raw | collect index=notable_events source="{{ rule.title }}" marker="guid={{ rule.id }}"
   rule_conditions:
     - type: logsource
