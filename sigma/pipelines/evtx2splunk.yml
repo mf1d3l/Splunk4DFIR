@@ -30,6 +30,6 @@ finalizers:
     cron_schedule = */30 * * * *
     dispatch.earliest_time = 0
     dispatch.latest_time = now
-    enableSched = 1
+    enableSched = 0
     schedule_window = auto
     {{ queries | join('\n') }}

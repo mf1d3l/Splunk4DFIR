@@ -47,6 +47,22 @@ Once splunk is up and running you can trigger the evtx logs ingestion with:
 sudo docker exec -it splunk4dfir sudo /opt/splunk/etc/apps/Splunk4DFIR/bin/ingest_evtx.sh
 ```
 
+## Enable saved seaches
+
+Scheduled searches are disabled by default you can enable them all with:
+
+```
+sudo docker exec  -it splunk4dfir sudo /opt/splunk/etc/apps/Splunk4DFIR/bin/set_savedsearches.sh enable
+```
+
+and disable them all after some time with
+
+```
+sudo docker exec  -it splunk4dfir sudo /opt/splunk/etc/apps/Splunk4DFIR/bin/set_savedsearches.sh disable
+```
+
+Searches will only match for  data ingested recently not to flood the notables index with duplicates.
+
 ## Sigma Rules support
 
 you can import sigma rules as savedsearches using the command below
