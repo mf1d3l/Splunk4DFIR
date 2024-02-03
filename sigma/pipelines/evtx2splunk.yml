@@ -1,17 +1,140 @@
-name: Windows Field Mapping 
-priority: 30
+name: Windows Field Mapping
+priority: 10
 transformations:
-  - id: field_mapping
+  - id: field_mapping_windows
     type: field_name_mapping
     mapping:
         Provider_Name: "Provider.#attributes.EventSourceName"
     rule_conditions:
       - type: logsource
         product: windows
+
+name: Windows Transforms System Channel
+priority: 10
+transformations:
+  - id: condition_system_channel
+    type: add_condition
+    conditions:
+      Channel: System
+    rule_conditions:
+      - type: logsource
+        product: windows
         service: system
 
-name: Splunk Alert stanza
+name: Windows Transforms Security Channel
 priority: 10
+transformations:
+  - id: condition_security_channel
+    type: add_condition
+    conditions:
+      Channel: Security
+    rule_conditions:
+      - type: logsource
+        product: windows
+        service: security
+
+name: Windows Transforms Sysmon Channel
+priority: 10
+transformations:
+  - id: condition_sysmon_channel
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-Sysmon/Operational"
+    rule_conditions:
+      - type: logsource
+        product: windows
+        service: sysmon
+
+name: Windows Transforms Powershell Classic
+priority: 10
+transformations:
+  - id: condition_psclassic
+    type: add_condition
+    conditions:
+      Channel: "Windows PowerShell"
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: ps_classic_provider_start
+
+name: Windows Transforms Powershell Classic 2
+priority: 10
+transformations:
+  - id: condition_psclassic2
+    type: add_condition
+    conditions:
+      Channel: "Windows PowerShell"
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: ps_classic_start
+
+name: Windows Transforms Powershell Classic 3
+priority: 10
+transformations:
+  - id: condition_psclassic3
+    type: add_condition
+    conditions:
+      Channel: "Windows PowerShell"
+    rule_conditions:
+      - type: logsource
+        product: windows
+        service: powershell-classic
+
+name: Windows Transforms Powershell Module
+priority: 10
+transformations:
+  - id: condition_ps_module
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-PowerShell/Operational"
+      EventID: 4103
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: ps_module 
+
+name: Windows Transforms SBL Module
+priority: 10
+transformations:
+  - id: condition_ps_sbl
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-PowerShell/Operational"
+      EventID: 4104
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: ps_script 
+
+name: Windows Process Creation
+priority: 10
+transformations:
+  - id: condition_windows_process_creation
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-PowerShell/Operational"
+      EventID: 1
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: process_creation
+
+name: Windows CreateRemoteThread
+priority: 10
+transformations:
+  - id: condition_windows_create_remote_thread
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-PowerShell/Operational"
+      EventID: 8
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: create_remote_thread
+ 
+name: Splunk Alert stanza Windows
+priority: 20
 postprocessing:
 - type: template
   template: |+
@@ -19,9 +142,8 @@ postprocessing:
     description = {{ rule.description }}
     search = index=evtx _index_earliest=-1h@h | rename Event.EventData.* as *  Event.System.* as * | search {{ query }} | fields - _raw | collect index=notable_events source="{{ rule.title }}" marker="guid={{ rule.id }}"
   rule_conditions:
-  - type: logsource
-    product: windows
-
+    - type: logsource
+      product: windows
 
 finalizers:
 - type: template
