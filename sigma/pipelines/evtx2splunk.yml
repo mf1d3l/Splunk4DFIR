@@ -1,4 +1,4 @@
-name: Windows Field Mapping
+name: Windows Transforms
 priority: 10
 transformations:
   - id: field_mapping_windows
@@ -9,9 +9,6 @@ transformations:
       - type: logsource
         product: windows
 
-name: Windows Transforms System Channel
-priority: 10
-transformations:
   - id: condition_system_channel
     type: add_condition
     conditions:
@@ -21,9 +18,6 @@ transformations:
         product: windows
         service: system
 
-name: Windows Transforms Security Channel
-priority: 10
-transformations:
   - id: condition_security_channel
     type: add_condition
     conditions:
@@ -33,21 +27,6 @@ transformations:
         product: windows
         service: security
 
-name: Windows Transforms Sysmon Channel
-priority: 10
-transformations:
-  - id: condition_sysmon_channel
-    type: add_condition
-    conditions:
-      Channel: "Microsoft-Windows-Sysmon/Operational"
-    rule_conditions:
-      - type: logsource
-        product: windows
-        service: sysmon
-
-name: Windows Transforms Powershell Classic
-priority: 10
-transformations:
   - id: condition_psclassic
     type: add_condition
     conditions:
@@ -57,9 +36,6 @@ transformations:
         product: windows
         category: ps_classic_provider_start
 
-name: Windows Transforms Powershell Classic 2
-priority: 10
-transformations:
   - id: condition_psclassic2
     type: add_condition
     conditions:
@@ -69,9 +45,6 @@ transformations:
         product: windows
         category: ps_classic_start
 
-name: Windows Transforms Powershell Classic 3
-priority: 10
-transformations:
   - id: condition_psclassic3
     type: add_condition
     conditions:
@@ -81,9 +54,6 @@ transformations:
         product: windows
         service: powershell-classic
 
-name: Windows Transforms Powershell Module
-priority: 10
-transformations:
   - id: condition_ps_module
     type: add_condition
     conditions:
@@ -94,9 +64,6 @@ transformations:
         product: windows
         category: ps_module 
 
-name: Windows Transforms SBL Module
-priority: 10
-transformations:
   - id: condition_ps_sbl
     type: add_condition
     conditions:
@@ -107,9 +74,15 @@ transformations:
         product: windows
         category: ps_script 
 
-name: Windows Process Creation
-priority: 10
-transformations:
+  - id: condition_sysmon_channel
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-Sysmon/Operational"
+    rule_conditions:
+      - type: logsource
+        product: windows
+        service: sysmon
+
   - id: condition_windows_process_creation
     type: add_condition
     conditions:
@@ -120,9 +93,6 @@ transformations:
         product: windows
         category: process_creation
 
-name: Windows CreateRemoteThread
-priority: 10
-transformations:
   - id: condition_windows_create_remote_thread
     type: add_condition
     conditions:
@@ -132,7 +102,59 @@ transformations:
       - type: logsource
         product: windows
         category: create_remote_thread
- 
+
+  - id: condition_windows_create_stream_hash
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-PowerShell/Operational"
+      EventID: 15
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: create_stream_hash
+
+  - id: condition_windows_dns_query
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-PowerShell/Operational"
+      EventID: 22
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: dns_query
+
+  - id: condition_windows_driver_load
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-PowerShell/Operational"
+      EventID: 6
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: driver_load
+
+  - id: condition_windows_file_event
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-PowerShell/Operational"
+      EventID: 11
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: file_event
+
+  - id: condition_windows_file_delete
+    type: add_condition
+    conditions:
+      Channel: "Microsoft-Windows-PowerShell/Operational"
+      EventID: 
+        - 23
+        - 26
+    rule_conditions:
+      - type: logsource
+        product: windows
+        category: file_delete
+
 name: Splunk Alert stanza Windows
 priority: 20
 postprocessing:
