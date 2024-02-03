@@ -205,7 +205,7 @@ transformations:
         product: windows
         category: process_tampering
 
-  - id: condition_windows_raw_access_read
+  - id: condition_windows_raw_access_thread
     type: add_condition
     conditions:
       Channel: "Microsoft-Windows-Sysmon/Operational"
@@ -213,7 +213,7 @@ transformations:
     rule_conditions:
       - type: logsource
         product: windows
-        category: raw_access_read
+        category: raw_access_thread
 
   - id: condition_windows_registry_add
     type: add_condition
