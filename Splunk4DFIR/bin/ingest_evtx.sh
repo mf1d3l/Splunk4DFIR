@@ -7,7 +7,7 @@
 #SPLUNK_USER = Splunk user with the rights to make configuration changes (add HEC token, indexes,etc)
 #SPLUNK_PASS = User password
 
-echo "SPLUNK_URL = 127.0.0.1" >> "/opt/splunk/etc/apps/Splunk4DFIR/bin/evtx2splunk/.env"
+echo "SPLUNK_URL = 127.0.0.1" > "/opt/splunk/etc/apps/Splunk4DFIR/bin/evtx2splunk/.env"
 echo "SPLUNK_PORT = 8000" >> "/opt/splunk/etc/apps/Splunk4DFIR/bin/evtx2splunk/.env"
 echo "SPLUNK_MPORT = 8089" >> "/opt/splunk/etc/apps/Splunk4DFIR/bin/evtx2splunk/.env"
 echo "SPLUNK_SSL = False" >> "/opt/splunk/etc/apps/Splunk4DFIR/bin/evtx2splunk/.env"

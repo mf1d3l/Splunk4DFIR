@@ -2,7 +2,7 @@
 
 ## Description
 
-Quickly spin up a splunk instance to browse through logs and tools output during your investigations.
+Quickly spin up a splunk instance with Docker to browse through logs and tools output during your investigations. 
 
 This is a simple quality of life improvement project built upon the amazing work below:
 
@@ -10,6 +10,15 @@ This is a simple quality of life improvement project built upon the amazing work
 - https://github.com/splunk/docker-splunk
 - https://github.com/SigmaHQ
 
+## Motivation
+
+SOC to DFIR is getting a natural career path and considering the current market shares of Splunk and Crowdstrike, familiarity with SPL(-like) query languages is getting widespread within the DFIR community.
+
+In DFIR it is common to juggle between different VMs and operating systems to be able to use all your favourite tools. Using Docker is convenient for portability.
+
+When on the field you may not have access  nor the time to transfer case artifact to a private cloud hosted lab and using a public cloud may be out of the question for coutless regulatory reasons, this project enables you to spin up in no time on whatever workstation you have in your hands an environment to demonstrate your SPL-fu and save the day.
+
+  
 ## HOW-TO
 
 Drop your files under the appropriate folder in `artifacts/` then build and run the container.
