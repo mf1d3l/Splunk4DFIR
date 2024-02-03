@@ -6,7 +6,7 @@ Quickly spin up a splunk instance with Docker to browse through logs and tools o
 
 This is a simple quality of life improvement project built upon the amazing work below:
 
-- https://github.com/whikernel/evtx2splunk/tree/main
+- https://github.com/whikernel/evtx2splunk
 - https://github.com/splunk/docker-splunk
 - https://github.com/SigmaHQ
 
@@ -55,7 +55,7 @@ Scheduled searches are disabled by default you can enable them all with:
 sudo docker exec  -it splunk4dfir sudo /opt/splunk/etc/apps/Splunk4DFIR/bin/set_savedsearches.sh enable
 ```
 
-and disable them all after some time with
+and disable them all with:
 
 ```
 sudo docker exec  -it splunk4dfir sudo /opt/splunk/etc/apps/Splunk4DFIR/bin/set_savedsearches.sh disable
