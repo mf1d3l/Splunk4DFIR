@@ -1,0 +1,24 @@
+title: Placeholder Experiment
+id: 62d50808-d8a5-4fd0-b4e2-5b6e887ef6ed
+status: experimental
+description: Dummy rule to demonstrate pysigma placeholder handling
+references:
+    - foo
+author: foo
+date: 2024/02/04
+tags:
+    - attack.defense_evasion
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID: 1
+        User|expand:
+          - "%Administrator%"
+          - "%domain_admin%"
+          - "foo"
+    condition: selection
+falsepositives:
+    - Unlikely
+level: medium
