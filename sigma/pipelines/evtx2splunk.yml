@@ -270,6 +270,15 @@ transformations:
         product: windows
         category: wmi_event
 
+  - id: Windows Placeholders Management
+    type: query_expression_placeholders
+    include:
+      - "domain_admin"
+      - "Administrator"
+    expression: "`placeholder_{id}({field})`"
+    rule_conditions:
+      - type: logsource
+        product: windows
 
 name: Splunk Alert stanza Windows
 priority: 20
