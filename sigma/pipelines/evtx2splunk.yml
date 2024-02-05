@@ -287,7 +287,7 @@ postprocessing:
   template: |+
     [{{ rule.title }}]
     description = {{ rule.description | replace('\n', ' ') }}
-    search = index=evtx _index_earliest=-1h@h | rename Event.EventData.* as *  Event.System.* as * | search {{ query | replace('\n', '\\\n')}} | fields - _raw | collect index=notable_events source="{{ rule.title }}" marker="guid={{ rule.id }}"
+    search = index=evtx _index_earliest=-1h@h | rename Event.EventData.* as *  Event.System.* as * | search {{ query | replace('\n', '\\\n')}} | fields - _raw | collect index=notable_events source="{{ rule.title }}" marker="guid={{ rule.id }},{% for t in rule.tags %}tags={{ t }},{% endfor %}"
   rule_conditions:
     - type: logsource
       product: windows

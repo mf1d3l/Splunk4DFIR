@@ -1,4 +1,5 @@
 <nav search_view="search">
+  <view name="sigma_rule_hits" />
   <view name="search" />
   <view name="reports" />
   <view name="alerts" />

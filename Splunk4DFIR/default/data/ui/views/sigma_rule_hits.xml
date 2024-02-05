@@ -1,0 +1,60 @@
+<form version="1.1" theme="dark">
+  <label>Sigma Rules Hits</label>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="rule_name">
+      <label>Rule name</label>
+      <default>*</default>
+      <prefix>"</prefix>
+      <suffix>"</suffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Sigma Rules Hits</title>
+      <table>
+        <search>
+          <query>index=_internal sourcetype=scheduler  app=Splunk4DFIR result_count!=0 savedsearch_name=$rule_name$
+| table _time status result_count savedsearch_name</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">50</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="source_token">$row.savedsearch_name$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$panel_show$">
+      <title>Details</title>
+      <table>
+        <search>
+          <progress>
+            <condition match="'job.resultCount' &gt; 0">
+              <set token="panel_show">true</set>
+            </condition>
+            <condition>
+              <unset token="panel_show"></unset>
+            </condition>
+          </progress>
+          <query>index=notable_events source="$source_token$"
+| stats count min(_time) as earliest_time max(_time) as latest_time values(tags) as tags by source guid
+| table earliest_time latest_time count source guid tags 
+| convert ctime(*_time) </query>
+        </search>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">preview</option>
+      </table>
+    </panel>
+  </row>
+</form>
