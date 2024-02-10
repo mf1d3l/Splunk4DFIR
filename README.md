@@ -30,6 +30,7 @@ sudo docker run --name splunk4dfir -e SPLUNK_START_ARGS=--accept-license -e SPLU
 
 goto: http://127.0.0.1:8000/en-US/app/Splunk4DFIR/search
 
+
 ## Supported inputs
 
 - `artifacts/json/`: drop there arbitrary json files
@@ -38,6 +39,7 @@ goto: http://127.0.0.1:8000/en-US/app/Splunk4DFIR/search
 - `artifacts/evtx/`: drop there windows logs evtx files
 - `artifacts/zeek/`: drop there your json zeek files
 - `artifacts/suricata/`: drop there your eve.json suricata file
+- `artifacts/supertimelines/`: drop there your plaso l2tcsv outputs
 
 ## Ingest evtx as json
 
