@@ -120,7 +120,7 @@
   </fieldset>
   <row>
     <panel>
-      <title>Alerts</title>
+      <title>Timeline</title>
       <table>
         <search base="filtered_base">
           <query>| table _time source extracted_source extracted_sourcetype filename extracted_host user MACB desc extra  </query>
