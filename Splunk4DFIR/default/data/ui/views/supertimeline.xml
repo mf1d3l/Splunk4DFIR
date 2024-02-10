@@ -1,0 +1,153 @@
+<form version="1.1" theme="dark">
+  <label>Supertimeline</label>
+  <search id="base">
+    <query>index="supertimelines" $text_filter$ | fields  _time source extracted_source extracted_sourcetype filename extracted_host user MACB desc extra </query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <search id="filtered_base">
+    <query>index="supertimelines" $text_filter$ MACB IN ( $selected_macb$ ) extracted_source IN ( $selected_source$ ) extracted_sourcetype IN ( $selected_sourcetype$ ) source IN ( $selected_timeline$ ) NOT source IN ( $filtered_timeline$ )  NOT extracted_source IN ( $filtered_source$ ) NOT extracted_sourcetype IN ( $filtered_sourcetype$ ) | fields  _time source extracted_source extracted_sourcetype filename extracted_host user MACB desc extra </query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free text filter</label>
+      <default>*</default>
+      <prefix>"</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="multiselect" token="selected_macb" searchWhenChanged="true">
+      <label>Select MACB</label>
+      <search base="base">
+        <query>| stats count by MACB | dedup MACB</query>
+      </search>
+      <fieldForLabel>MACB</fieldForLabel>
+      <fieldForValue>MACB</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+      <choice value="*B*">CREATION</choice>
+      <choice value="*M*">MODIFIED</choice>
+    </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select Source</label>
+      <search base="base">
+        <query>| stats count by extracted_source | dedup extracted_source</query>
+      </search>
+      <fieldForLabel>extracted_source</fieldForLabel>
+      <fieldForValue>extracted_source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_sourcetype" searchWhenChanged="true">
+      <label>Select Sourcetype</label>
+      <search base="base">
+        <query>| stats count by extracted_sourcetype | dedup extracted_sourcetype</query>
+      </search>
+      <fieldForLabel>extracted_sourcetype</fieldForLabel>
+      <fieldForValue>extracted_sourcetype</fieldForValue>
+      <delimiter> , </delimiter>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+      <default>*</default>
+    </input>
+    <input type="multiselect" token="selected_timeline" searchWhenChanged="true">
+      <label>Select Timeline</label>
+      <search base="base">
+        <query>| stats count by source | dedup source</query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+      <default>*</default>
+    </input>
+    <input type="multiselect" token="filtered_timeline" searchWhenChanged="true">
+      <label>Filter Timeline</label>
+      <search base="base">
+        <query>| stats count by source | dedup source</query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="">NONE</choice>
+      <default>""</default>
+    </input>
+    <input type="multiselect" token="filtered_source" searchWhenChanged="true">
+      <label>Filter Source</label>
+      <search base="base">
+        <query>| stats count by extracted_source | dedup extracted_source</query>
+      </search>
+      <fieldForLabel>extracted_source</fieldForLabel>
+      <fieldForValue>extracted_source</fieldForValue>
+      <delimiter> , </delimiter>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="">NONE</choice>
+      <default>""</default>
+    </input>
+    <input type="multiselect" token="filtered_sourcetype" searchWhenChanged="true">
+      <label>Filter Sourcetype</label>
+      <search base="base">
+        <query>| stats count by extracted_sourcetype | dedup extracted_sourcetype</query>
+      </search>
+      <fieldForLabel>extracted_sourcetype</fieldForLabel>
+      <fieldForValue>extracted_sourcetype</fieldForValue>
+      <delimiter> , </delimiter>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="">NONE</choice>
+      <default>""</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Alerts</title>
+      <table>
+        <search base="filtered_base">
+          <query>| table _time source extracted_source extracted_sourcetype filename extracted_host user MACB desc extra  </query>
+        </search>
+        <option name="count">50</option>
+        <option name="drilldown">cell</option>
+        <format type="color" field="extracted_source">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="extracted_sourcetype">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="filename">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="extracted_host">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="user">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>
