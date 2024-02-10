@@ -19,10 +19,10 @@
       </default>
     </input>
     <input type="text" token="text_filter">
-      <label>Free text filter</label>
+      <label>Free SPL input</label>
       <default>*</default>
-      <prefix>"</prefix>
-      <suffix>"</suffix>
+      <prefix></prefix>
+      <suffix></suffix>
     </input>
     <input type="multiselect" token="selected_macb" searchWhenChanged="true">
       <label>Select MACB</label>
