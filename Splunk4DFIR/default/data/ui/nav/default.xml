@@ -1,5 +1,8 @@
 <nav search_view="search">
-  <view name="sigma_rule_hits" />
+  <collection label="Alerts Views">
+    <view name="sigma_rule_hits" default="yes"/>
+    <view name="suricata_alerts" />
+  </collection> 
   <view name="search" />
   <view name="reports" />
   <view name="alerts" />

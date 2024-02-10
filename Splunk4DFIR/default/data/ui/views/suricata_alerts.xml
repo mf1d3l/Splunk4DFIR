@@ -1,0 +1,102 @@
+<form version="1.1" theme="dark">
+  <label>Suricata Alerts</label>
+  <search id="base">
+    <query>index=suricata  sourcetype="suricata:eve" alert.signature=$rule_name$</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="rule_name">
+      <label>Rule name</label>
+      <default>*</default>
+      <prefix>"</prefix>
+      <suffix>"</suffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Timeline</title>
+      <chart>
+        <search base="base">
+          <query>| timechart count by alert.signature</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Alerts</title>
+      <table>
+        <search>
+          <query>index=suricata  sourcetype="suricata:eve" alert.signature=$rule_name$ 
+          | stats count min(_time) as earliest_time max(_time) as latest_time by alert.severity alert.category alert.signature
+          |table earliest_time latest_time count alert.severity alert.category alert.signature
+          | convert ctime(*_time*)</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="alert_token">$row.alert.signature$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$panel_show2$">
+      <title>Timeline for "$alert_token$"</title>
+      <chart>
+        <search>
+          <progress>
+            <condition match="'job.resultCount' &gt; 0">
+              <set token="panel_show2">true</set>
+            </condition>
+            <condition>
+              <unset token="panel_show2"></unset>
+            </condition>
+          </progress>
+          <query> index=suricata  sourcetype="suricata:eve" alert.signature="$alert_token$"
+| timechart count by alert.signature</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">preview</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$panel_show3$">
+      <title>Details for "$alert_token$"</title>
+      <table>
+        <search>
+          <progress>
+            <condition match="'job.resultCount' &gt; 0">
+              <set token="panel_show3">true</set>
+            </condition>
+            <condition>
+              <unset token="panel_show3"></unset>
+            </condition>
+          </progress>
+          <query>  index=suricata  sourcetype="suricata:eve" alert.signature="$alert_token$"          
+          |table _time alert.severity alert.category alert.signature src_ip dest_ip src_port dest_port
+          | convert ctime(*_time*) </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">preview</option>
+      </table>
+    </panel>
+  </row>
+</form>
