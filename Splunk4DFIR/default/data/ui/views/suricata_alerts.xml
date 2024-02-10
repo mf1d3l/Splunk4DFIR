@@ -42,6 +42,8 @@
           | stats count min(_time) as earliest_time max(_time) as latest_time by alert.severity alert.category alert.signature
           |table earliest_time latest_time count alert.severity alert.category alert.signature
           | convert ctime(*_time*)</query>
+        <earliest>$timepicker.earliest$</earliest>
+        <latest>$timepicker.latest$</latest>
         </search>
         <option name="count">10</option>
         <option name="drilldown">cell</option>
