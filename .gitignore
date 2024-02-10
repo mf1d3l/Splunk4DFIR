@@ -1,5 +1,6 @@
 artifacts/json/*
 artifacts/csv/*
+artifacts/supertimelines/*
 artifacts/evtx/*
 artifacts/cloudtrail/*
 artifacts/pcap/*
