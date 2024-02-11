@@ -4,6 +4,7 @@
     <view name="suricata_alerts" />
   </collection> 
   <view name="supertimeline" />
+  <view name="autorunsc" />
   <view name="search" />
   <view name="reports" />
   <view name="alerts" />

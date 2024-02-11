@@ -1,0 +1,157 @@
+<form version="1.1" theme="dark">
+  <label>Autorunsc</label>
+  <search id="base">
+    <query> `autorunsc` $text_filter$ | fields _time PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path" | fillnull value="NULL" PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path"</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <search id="filtered_base">
+    <query> `autorunsc` $text_filter$ $signer$ $msfilter$ $emptyfilter$ $foundfilter$ $ntfilter$ PSComputerName IN ( $selected_host$ ) Profile IN ( $selected_user$ )  Category IN ( $selected_category$ ) | fields  _time PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path" | fillnull value="NULL" PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path"</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="selected_host" searchWhenChanged="true">
+      <label>Select Host</label>
+      <search base="base">
+        <query>| stats count by PSComputerName | dedup PSComputerName</query>
+      </search>
+      <fieldForLabel>PSComputerName</fieldForLabel>
+      <fieldForValue>PSComputerName</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_user" searchWhenChanged="true">
+      <label>Select User</label>
+      <search base="base">
+        <query>| stats count by Profile| dedup Profile | eval Profile = replace(Profile, "\\x5c", "\\\\\\")</query>
+      </search>
+      <fieldForLabel>Profile</fieldForLabel>
+      <fieldForValue>Profile</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_category" searchWhenChanged="true">
+      <label>Select ASEP Category</label>
+      <search base="base">
+        <query>| stats count by Category | dedup Category</query>
+      </search>
+      <fieldForLabel>Category</fieldForLabel>
+      <fieldForValue>Category</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="dropdown" token="signer" searchWhenChanged="true">
+      <label>Signing option</label>
+      <choice value="">Include All</choice>
+      <choice value="Signer = &quot;(Verified)*&quot;">Verified Only</choice>
+      <choice value="Signer = &quot;(Not verified)*&quot;">Unverified Only</choice>
+      <choice value="Signer = &quot;&quot;">Unsigned Only</choice>
+      <default></default>
+    </input>
+    <input type="dropdown" token="msfilter" searchWhenChanged="true">
+      <label>Exclude Microsoft Entries</label>
+      <choice value="NOT Company = &quot;*Microsoft*&quot;">YES</choice>
+      <choice value="">NO</choice>
+      <default></default>
+    </input>
+    <input type="dropdown" token="emptyfilter" searchWhenChanged="true">
+      <label>Exclude Empty Entries</label>
+      <choice value="NOT (&quot;Launch String&quot;=&quot;&quot; &quot;Image Path&quot;=&quot;&quot;)">YES</choice>
+      <choice value="">NO</choice>
+      <default></default>
+    </input>
+    <input type="dropdown" token="foundfilter" searchWhenChanged="true">
+      <label>Exclude Unfound File Entries</label>
+      <choice value="NOT &quot;Image Path&quot;=&quot;*file not found*&quot;">YES</choice>
+      <choice value="">NO</choice>
+      <default></default>
+    </input>
+    <input type="dropdown" token="ntfilter" searchWhenChanged="true">
+      <label>Exclude NT AUTHORITY Account</label>
+      <choice value="NOT Profile IN (&quot;system-wide&quot; &quot;NT AUTHORITY*&quot;)">YES</choice>
+      <choice value="">NO</choice>
+      <default></default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Categories</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| stats count by Category</query>
+        </search>
+        <option name="charting.chart">pie</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Timeline Category</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| timechart count by Category</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Users</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| stats count by Profile</query>
+        </search>
+        <option name="charting.chart">pie</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Timeline User</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| timechart count by Profile</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timeline</title>
+      <table>
+        <search base="filtered_base">
+          <query>| stats count dc(PSComputerName) as dc_hosts dc(Profile) as dc_users min(_time) as earliest_time max(_time) as latest_time values(PSComputerName) as PSComputerName values(Profile) as Profile by Category Entry Signer Company  "Launch String" "Image Path" "Entry Location" Description 
+          | table earliest_time latest_time count dc_hosts dc_users PSComputerName Profile Category Entry Signer Company  "Launch String" "Image Path" "Entry Location" Description
+          |convert ctime(*_time*)</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>
