@@ -31,13 +31,26 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source</label>
+      <search>
+        <query>((`shimcache` LastModifiedTimeUTC = "*") OR (`amcache`) OR (`prefetch`)) | fields source | dedup source</query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
   </fieldset>
   <row>
     <panel>
       <title>Seen Executables - clicking on hashes redirects to VT</title>
       <table>
         <search>
-          <query>((`shimcache` LastModifiedTimeUTC = "*") OR (`amcache`) OR (`prefetch`)) $text_filter$
+          <query>((`shimcache` LastModifiedTimeUTC = "*") OR (`amcache`) OR (`prefetch`)) source IN ( $selected_source$ ) $text_filter$
 |eval executable = coalesce(ExecutableName, Path, FullPath)
 |eval executable = lower(executable)
 |rex field=executable "(?&lt;executable_name&gt;[^\\\]+$)" 
