@@ -43,11 +43,12 @@ goto: http://127.0.0.1:8000/en-US/app/Splunk4DFIR/search
 
 additionnaly some macros are configurable to point to specific tools output sourcetypes:
 
-- `autorunsc`: point to autorunsc csv output files
-- `prefetch`: point to PECmd csv output files
-- `amcache`: point to AmcacheParser csv output files
-- `timeline`: point to simple timeline files
-- `winevtx`: point to EvtxECmd csv output files
+- `autorunsc`: points to autorunsc csv output files
+- `prefetch`: points to PECmd csv output files
+- `amcache`: points to AmcacheParser csv output files
+- `shimcache`: points to AppCompatCacheParser csv output files
+- `timeline`: points to simple timeline files
+- `winevtx`: points to EvtxECmd csv output files
 
 
 ## Ingest evtx as json

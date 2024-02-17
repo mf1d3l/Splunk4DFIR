@@ -1,0 +1,61 @@
+<form version="1.1" theme="dark">
+  <label>Execution Artifacts</label>
+  <description>correlates outputs from PECmd, AppCompatCacheParser and AmcacheParser</description>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+      <input type="multiselect" token="selected_executable" searchWhenChanged="true">
+      <label>Select an Executable Name</label>
+      <search>
+        <query>((`shimcache` LastModifiedTimeUTC = "*") OR (`amcache`) OR (`prefetch`))
+|eval executable = coalesce(ExecutableName, Path, FullPath)
+|eval executable = lower(executable)
+|rex field=executable "(?&lt;executable_name&gt;[^\\\]+$)" |fields executable_name | dedup executable_name</query>
+      </search>
+      <fieldForLabel>executable_name</fieldForLabel>
+      <fieldForValue>executable_name</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Seen Executables - clicking on hashes redirects to VT</title>
+      <table>
+        <search>
+          <query>((`shimcache` LastModifiedTimeUTC = "*") OR (`amcache`) OR (`prefetch`)) $text_filter$
+|eval executable = coalesce(ExecutableName, Path, FullPath)
+|eval executable = lower(executable)
+|rex field=executable "(?&lt;executable_name&gt;[^\\\]+$)" 
+|stats values(executable) as executable values(SHA1) as SHA1 values(source) as source values(LastRun) as LastRun values(LastModifiedTimeUTC) as LastModifiedTimeUTC values(FileKeyLastWriteTimestamp) as FileKeyLastWriteTimestamp by  executable_name
+| table executable_name LastRun LastModifiedTimeUTC FileKeyLastWriteTimestamp executable SHA1 source
+| search executable_name IN ( $selected_executable$ )</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <condition field="SHA1">
+            <link target="_blank">https://www.virustotal.com/gui/file/$row.SHA1$</link>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>

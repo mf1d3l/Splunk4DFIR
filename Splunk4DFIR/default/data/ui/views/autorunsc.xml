@@ -142,7 +142,7 @@
   </row>
   <row>
     <panel>
-      <title>Timeline</title>
+      <title>ASEP Entries</title>
       <table>
         <search base="filtered_base">
           <query>| stats count dc(PSComputerName) as dc_hosts dc(Profile) as dc_users min(_time) as earliest_time max(_time) as latest_time values(PSComputerName) as PSComputerName values(Profile) as Profile by Category Entry Signer Company  "Launch String" "Image Path" "Entry Location" Description 

@@ -1,12 +1,17 @@
 <nav search_view="search">
   <collection label="Alerts Views">
-    <view name="sigma_rule_hits" default="yes"/>
+    <view name="sigma_rule_hits"/>
     <view name="suricata_alerts" />
+  </collection> 
+  <collection label="EZ outputs"> 
+    <view name="execution_artifacts" />
   </collection> 
   <view name="supertimeline" />
   <view name="autorunsc" />
-  <view name="search" />
+  <collection label="Default"> 
+  <view name="search" default="yes"/>
   <view name="reports" />
   <view name="alerts" />
   <view name="dashboards" />
+  </collection> 
 </nav>
