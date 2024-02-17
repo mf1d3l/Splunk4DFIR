@@ -6,6 +6,7 @@
   <collection label="EZ outputs"> 
     <view name="execution_artifacts" />
     <view name="prefetch" />
+    <view name="shimcache" />
   </collection> 
   <view name="supertimeline" />
   <view name="autorunsc" />

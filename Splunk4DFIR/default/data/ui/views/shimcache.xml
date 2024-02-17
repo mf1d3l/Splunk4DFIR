@@ -1,0 +1,69 @@
+<form version="1.1" theme="dark">
+  <label>Shimcache</label>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source</label>
+      <search>
+        <query>`shimcache` LastModifiedTimeUTC=*| fields source | dedup source</query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_exe" searchWhenChanged="true">
+      <label>Select Executable</label>
+      <search>
+        <query>`shimcache` LastModifiedTimeUTC=*  | rex field=Path "(?&lt;executable_name&gt;[^\\\]+$)" | fields executable_name | dedup executable_name</query>
+      </search>
+      <fieldForLabel>executable_name</fieldForLabel>
+      <fieldForValue>executable_name</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Shimcache entries</title>
+      <table>
+        <search>
+          <query>`shimcache` LastModifiedTimeUTC=* source IN ( $selected_source$ ) $text_filter$
+| rex field=Path "(?&lt;executable_name&gt;[^\\\]+$)" 
+| table LastModifiedTimeUTC executable_name Path source
+| search executable_name IN ( $selected_exe$ )</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <condition field="executable_name">
+            <link target="_blank">
+              <![CDATA[/app/Splunk4DFIR/execution_artifacts?form.timepicker.earliest=$timepicker.earliest$&form.timepicker.latest=$timepicker.latest$&form.text_filter=*&form.selected_executable=$row.executable_name$&form.selected_source=$form.selected_source$]]>
+            </link>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>
