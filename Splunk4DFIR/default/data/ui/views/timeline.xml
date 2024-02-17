@@ -1,0 +1,62 @@
+<dashboard version="1.1" theme="dark">
+<label>File System Timeline</label>
+ <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source</label>
+      <search>
+        <query>`timeline` | fields source | dedup source</query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_macb" searchWhenChanged="true">
+      <label>Select MACB</label>
+      <search>
+        <query>`timeline` | stats count by Type| dedup Type</query>
+      </search>
+      <fieldForLabel>MACB</fieldForLabel>
+      <fieldForValue>MACB</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+      <choice value="*b*">CREATION</choice>
+      <choice value="*m*">MODIFIED</choice>
+    </input>
+  </fieldset>
+   <row>
+    <panel>
+      <title>Timeline</title>
+      <table>
+        <search>
+          <query>`timeline` source IN ( $selected_source$ ) Type IN ( $selected_macb$ ) $text_filter$
+| table source Date Type  Meta  "File Name"   </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

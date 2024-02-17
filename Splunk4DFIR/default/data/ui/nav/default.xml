@@ -8,7 +8,10 @@
     <view name="prefetch" />
     <view name="shimcache" />
   </collection> 
-  <view name="supertimeline" />
+  <collection label="Timelines"> 
+    <view name="supertimeline" />
+    <view name="timeline" />
+  </collection> 
   <view name="autorunsc" />
   <collection label="Default"> 
   <view name="search" default="yes"/>
