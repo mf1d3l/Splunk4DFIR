@@ -1,10 +1,5 @@
 <form version="1.1" theme="dark">
   <label>Suricata Alerts</label>
-  <search id="base">
-    <query>index=suricata  sourcetype="suricata:eve" alert.signature=$rule_name$ | fields alert.signature </query>
-    <earliest>$timepicker.earliest$</earliest>
-    <latest>$timepicker.latest$</latest>
-  </search>
   <fieldset submitButton="true">
     <input type="time" token="timepicker">
       <label>Time span</label>
@@ -13,19 +8,50 @@
         <latest>now</latest>
       </default>
     </input>
-    <input type="text" token="rule_name">
-      <label>Rule name</label>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
       <default>*</default>
-      <prefix>"</prefix>
-      <suffix>"</suffix>
+      <prefix/>
+      <suffix/>
     </input>
+    <input type="multiselect" token="rule_category" searchWhenChanged="true">
+      <label>Select an Alert Category</label>
+      <search>
+      <query>index=suricata  sourcetype="suricata:eve"
+      |fields alert.category| dedup alert.category</query>
+      </search>
+      <fieldForLabel>alert.category</fieldForLabel>
+      <fieldForValue>alert.category</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>  
+    <input type="multiselect" token="rule_name" searchWhenChanged="true">
+      <label>Select an Alert Signature</label>
+      <search>
+      <query>index=suricata  sourcetype="suricata:eve"
+      |fields alert.signature| dedup alert.signature</query>
+      </search>
+      <fieldForLabel>alert.signature</fieldForLabel>
+      <fieldForValue>alert.signature</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>  
   </fieldset>
   <row>
     <panel>
       <title>Timeline</title>
       <chart>
-        <search base="base">
-          <query>| timechart count by alert.signature</query>
+        <search>
+          <query>index=suricata  sourcetype="suricata:eve"  $text_filter$ alert.signature IN ( $rule_name$ ) alert.category IN ( $rule_category$ )
+          | timechart count by alert.signature</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.showDataLabels">none</option>
@@ -38,7 +64,7 @@
       <title>Alerts</title>
       <table>
         <search>
-          <query>index=suricata  sourcetype="suricata:eve" alert.signature=$rule_name$ 
+          <query>index=suricata  sourcetype="suricata:eve" $text_filter$ alert.signature IN ( $rule_name$ ) alert.category IN ( $rule_category$ )
           | stats count min(_time) as earliest_time max(_time) as latest_time by alert.severity alert.category alert.signature
           |table earliest_time latest_time count alert.severity alert.category alert.signature
           | convert ctime(*_time*)</query>

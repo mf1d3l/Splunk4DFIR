@@ -1,0 +1,185 @@
+<form version="1.1" theme="dark">
+  <label>Zeek</label>
+  <search id="base">
+    <query>index=zeek $text_filter$ id.orig_h IN ( $src_ip$ ) id.resp_h IN ( $dest_ip$ ) proto IN ( $proto$ )  id.orig_p IN ( $src_port$ ) id.resp_p IN ( $dest_port$ ) 
+    | fields id.orig_h id.resp_h proto id.orig_p id.resp_p orig_bytes resp_bytes</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+     <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="src_ip" searchWhenChanged="true">
+      <label>Select Source IP</label>
+      <search>
+      <query>index=zeek 
+      |fields id.orig_h| dedup id.orig_h</query>
+      </search>
+      <fieldForLabel>id.orig_h</fieldForLabel>
+      <fieldForValue>id.orig_h</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>  
+    <input type="multiselect" token="dest_ip" searchWhenChanged="true">
+      <label>Select Dest IP</label>
+      <search>
+      <query>index=zeek 
+      |fields id.resp_h| dedup id.resp_h</query>
+      </search>
+      <fieldForLabel>id.resp_h</fieldForLabel>
+      <fieldForValue>id.resp_h</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="proto" searchWhenChanged="true">
+      <label>Select Transport Protocol</label>
+      <search>
+      <query>index=zeek 
+      |fields proto| dedup proto</query>
+      </search>
+      <fieldForLabel>proto</fieldForLabel>
+      <fieldForValue>proto</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>  
+    <input type="multiselect" token="src_port" searchWhenChanged="true">
+      <label>Select Source Port</label>
+      <search>
+      <query>index=zeek 
+      |fields id.orig_p| dedup id.orig_p</query>
+      </search>
+      <fieldForLabel>id.orig_p</fieldForLabel>
+      <fieldForValue>id.orig_p</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>  
+    <input type="multiselect" token="dest_port" searchWhenChanged="true">
+      <label>Select Dest Port</label>
+      <search>
+      <query>index=zeek 
+      |fields id.resp_p| dedup id.resp_p</query>
+      </search>
+      <fieldForLabel>id.resp_p</fieldForLabel>
+      <fieldForValue>id.resp_p</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>  
+  </fieldset>
+  <row>
+    <panel>
+      <title>Connections Timeline Source IP</title>
+      <chart>
+        <search base="base">
+          <query>| timechart count by id.orig_h</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+      <panel>
+      <title>Connections Timeline Destination IP</title>
+      <chart>
+        <search base="base">
+          <query>| timechart count by id.resp_h</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+    <row>
+    <panel>
+      <title>Protocol Timeline</title>
+      <chart>
+        <search base="base">
+          <query>| timechart count by proto</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+      <panel>
+      <title>Connections Timeline Destination Port</title>
+      <chart>
+        <search base="base">
+          <query>| timechart count by id.resp_p</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+    <row>
+    <panel>
+      <title>Exchanged Bytes Timeline Source IP</title>
+      <chart>
+        <search base="base">
+          <query>| timechart sum(orig_bytes) as count by id.orig_h</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+      <panel>
+      <title>Exchanged Bytes Timeline Destination IP</title>
+      <chart>
+        <search base="base">
+          <query>| timechart sum(resp_bytes) by id.resp_h</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Details</title>
+      <table>
+        <search>
+          <query>index=zeek $text_filter$ id.orig_h IN ( $src_ip$ ) id.resp_h IN ( $dest_ip$ ) proto IN ( $proto$ )  id.orig_p IN ( $src_port$ ) id.resp_p IN ( $dest_port$ )
+          |table _time duration id.orig_h id.resp_h proto id.orig_p id.resp_p orig_bytes resp_bytes
+          </query>
+        <earliest>$timepicker.earliest$</earliest>
+        <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="alert_token">$row.alert.signature$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>

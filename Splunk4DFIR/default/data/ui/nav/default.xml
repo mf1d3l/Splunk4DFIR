@@ -1,7 +1,8 @@
 <nav search_view="search">
-  <collection label="Alerts Views">
-    <view name="sigma_rule_hits"/>
+  <view name="sigma_rule_hits"/>
+  <collection label="NSM">
     <view name="suricata_alerts" />
+    <view name="zeek" />
   </collection> 
   <collection label="EZ outputs"> 
     <view name="execution_artifacts" />
