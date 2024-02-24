@@ -1,12 +1,16 @@
 <form version="1.1" theme="dark">
   <label>Autorunsc</label>
   <search id="base">
-    <query> `autorunsc` $text_filter$ | fields _time PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path" | fillnull value="NULL" PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path"</query>
+    <query> `autorunsc` $text_filter$ 
+    | fields _time PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path" 
+    | fillnull value="NULL" PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path"</query>
     <earliest>$timepicker.earliest$</earliest>
     <latest>$timepicker.latest$</latest>
   </search>
   <search id="filtered_base">
-    <query> `autorunsc` $text_filter$ $signer$ $msfilter$ $emptyfilter$ $foundfilter$ $ntfilter$ PSComputerName IN ( $selected_host$ ) Profile IN ( $selected_user$ )  Category IN ( $selected_category$ ) | fields  _time PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path" | fillnull value="NULL" PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path"</query>
+    <query> `autorunsc` $text_filter$ $signer$ $msfilter$ $emptyfilter$ $foundfilter$ $ntfilter$ PSComputerName IN ( $selected_host$ ) Profile IN ( $selected_user$ )  Category IN ( $selected_category$ ) 
+    | fields  _time PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path" 
+    | fillnull value="NULL" PSComputerName Profile Category Entry "Entry Location" Signer Company Description "Launch String" "Image Path"</query>
     <earliest>$timepicker.earliest$</earliest>
     <latest>$timepicker.latest$</latest>
   </search>
