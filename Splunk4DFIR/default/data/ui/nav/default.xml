@@ -14,6 +14,7 @@
     <view name="timeline" />
   </collection> 
   <view name="autorunsc" />
+  <view name="hayabusa" />
   <collection label="Default"> 
   <view name="search" default="yes"/>
   <view name="reports" />
