@@ -9,6 +9,9 @@
     <earliest>$timepicker.earliest$</earliest>
     <latest>$timepicker.latest$</latest>
   </search>
+   <search base="base" id="filtered_base">
+    <query> | search metadata_keyword_type IN ( $selected_type$ ) metadata_category IN ( $selected_category$ ) </query>
+  </search>
   <fieldset submitButton="true">
     <input type="time" token="timepicker">
       <label>Time span</label>
@@ -23,12 +26,38 @@
       <prefix/>
       <suffix/>
     </input>
+    <input type="multiselect" token="selected_type" searchWhenChanged="true">
+      <label>Select Keyword Type</label>
+      <search base="base">
+        <query>| stats count by metadata_keyword_type | dedup metadata_keyword_type</query>
+      </search>
+      <fieldForLabel>metadata_keyword_type</fieldForLabel>
+      <fieldForValue>metadata_keyword_type</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+     <input type="multiselect" token="selected_category" searchWhenChanged="true">
+      <label>Select Category</label>
+      <search base="base">
+        <query>| stats count by metadata_category | dedup metadata_category</query>
+      </search>
+      <fieldForLabel>metadata_category</fieldForLabel>
+      <fieldForValue>metadata_category</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
   </fieldset>
   <row>
     <panel>
       <title>Timeline Category</title>
       <chart>
-        <search base="base">
+        <search base="filtered_base">
           <query>
 | timechart count by metadata_category
 </query>
@@ -40,7 +69,7 @@
     <panel>
       <title>Timeline Tool</title>
       <chart>
-        <search base="base">
+        <search base="filtered_base">
           <query>
 | timechart count by metadata_tool
 </query>
@@ -54,9 +83,9 @@
     <panel>
       <title>Keywords Hits</title>
       <table>
-        <search base="base">
+        <search base="filtered_base">
           <query>
-| table _time metadata_keyword_type metadata_tool keyword_detection _raw
+| table _time metadata_category metadata_keyword_type metadata_tool keyword_detection _raw
 </query>
         </search>
         <option name="count">10</option>
