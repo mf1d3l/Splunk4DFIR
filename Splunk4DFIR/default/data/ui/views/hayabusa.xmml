@@ -1,0 +1,210 @@
+<form version="1.1" theme="dark">
+  <label>Hayabusa</label>
+  <search id="base">
+    <query> `hayabusa` $text_filter$
+| fields _time  source Level Computer Channel EventID RuleTitle Details</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <search id="filtered_base" base="base">
+    <query>
+| search Computer IN ( $selected_host$ ) RuleTitle IN ( $selected_rule$ ) source IN ( $selected_source$ ) Level IN ( $selected_level$ ) Channel IN ( $selected_channel$ ) EventID IN ( $selected_eventid$ ) 
+| table _time Level Computer Channel EventID RuleTitle Details</query>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="selected_host" searchWhenChanged="true">
+      <label>Select Host</label>
+      <search base="base">
+        <query>| stats count by Computer | dedup Computer</query>
+      </search>
+      <fieldForLabel>Computer</fieldForLabel>
+      <fieldForValue>Computer</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_rule" searchWhenChanged="true">
+      <label>Select Rule</label>
+      <search base="base">
+        <query>| stats count by RuleTitle | dedup RuleTitle</query>
+      </search>
+      <fieldForLabel>RuleTitle</fieldForLabel>
+      <fieldForValue>RuleTitle</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source file</label>
+      <search base="base">
+        <query>| stats count by source | dedup source</query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_level" searchWhenChanged="true">
+      <label>Select Alert Level</label>
+      <search base="base">
+        <query>| stats count by Level | dedup Level</query>
+      </search>
+      <fieldForLabel>Level</fieldForLabel>
+      <fieldForValue>Level</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_channel" searchWhenChanged="true">
+      <label>Select Channel</label>
+      <search base="base">
+        <query>| stats count by Channel | dedup Channel</query>
+      </search>
+      <fieldForLabel>Channel</fieldForLabel>
+      <fieldForValue>Channel</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_eventid" searchWhenChanged="true">
+      <label>Select EventID</label>
+      <search base="base">
+        <query>| stats count by EventID | dedup EventID</query>
+      </search>
+      <fieldForLabel>EventID</fieldForLabel>
+      <fieldForValue>EventID</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Alert Level Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by Level</query>
+        </search>
+        <option name="charting.chart">pie</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Host Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by Computer</query>
+        </search>
+        <option name="charting.chart">pie</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Alert Level Timeline</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| timechart count by Level </query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Host Timeline</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| timechart count by Computer</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+      <panel>
+      <title>Rule Timeline</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| timechart count by RuleTitle</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+      </chart>
+    </panel>
+  </row>
+   <row>
+    <panel>
+      <title>Hayabusa detections - aggregated by Rule</title>
+      <table>
+        <search base="filtered_base">
+          <query>
+| stats count min(_time) as earliest_time max(_time) as latest_time by RuleTitle | sort - count
+| table earliest_time latest_time count  RuleTitle
+| convert ctime(*_time)</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Hayabusa detections - aggregated by Host</title>
+      <table>
+        <search base="filtered_base">
+          <query>
+| stats count min(_time) as earliest_time max(_time) as latest_time  by Computer | sort - count
+| table earliest_time latest_time count Computer 
+| convert ctime(*_time)</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Hayabusa detections - all events</title>
+      <table>
+        <search base="filtered_base">
+          <query>
+| table _time Level Computer Channel EventID RuleTitle Details</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>
