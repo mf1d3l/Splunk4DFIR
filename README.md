@@ -6,9 +6,12 @@ Quickly spin up a splunk instance with Docker to browse through logs and tools o
 
 This is a simple quality of life improvement project built upon the amazing work below:
 
+- https://github.com/omerbenamram/evtx
 - https://github.com/whikernel/evtx2splunk
 - https://github.com/splunk/docker-splunk
 - https://github.com/SigmaHQ
+- https://github.com/Yamato-Security/hayabusa
+- https://github.com/mthcht/ThreatHunting-Keywords
 
 ## Motivation
 
