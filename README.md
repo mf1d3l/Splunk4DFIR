@@ -18,7 +18,7 @@ In DFIR it is common to juggle between different VMs and operating systems to be
 
 When on the field you may not have access  nor the time to transfer case artifact to a private cloud hosted lab and using a public cloud may be out of the question for coutless regulatory reasons, this project enables you to spin up in no time on whatever workstation you have in your hands an environment to demonstrate your SPL-fu and save the day.
 
-  
+ 
 ## HOW-TO
 
 Drop your files under the appropriate folder in `artifacts/` then build and run the container.
@@ -49,6 +49,7 @@ additionnaly some macros are configurable to point to specific tools output sour
 - `shimcache`: points to AppCompatCacheParser csv output files
 - `timeline`: points to simple timeline files
 - `winevtx`: points to EvtxECmd csv output files
+- `hayabusa`: points to hayabusa csv output files
 
 
 ## Ingest evtx as json
@@ -83,6 +84,11 @@ you can import sigma rules as savedsearches using the command below
 sudo docker build -t sigma-cli sigma/
 sudo docker run -it --name sigma-cli --rm -v ./Splunk4DFIR/default:/mnt/output -v ./sigma/rules/:/mnt/rules -v ./sigma/pipelines:/mnt/pipelines sigma-cli:latest pipenv run sigma convert -t splunk -p /mnt/pipelines/evtx2splunk.yml /mnt/rules/sigma/rules/windows/ -s  -o /mnt/output/savedsearches.conf
 ```
+
+When dealing with evtx files, the evtx to json import + sigma rule to splunk scheduled alert conversion approach has the benefit of providing you with the full events. However it doesnt scale very well. It is better suited for investigating just a handful of endpoint logs.
+
+If you need to triage evtx accross a very large fleet of endpoint I rather recommend to start processing with [hayabusa](https://github.com/Yamato-Security/hayabusa) and import the hayabusa outputs into splunk. The Splunk4DFIR app has a dashboard to visualise hayabusa outputs.
+
 
 ## Pcap to Zeek
 
