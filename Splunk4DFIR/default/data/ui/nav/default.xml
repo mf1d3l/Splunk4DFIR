@@ -13,6 +13,9 @@
     <view name="supertimeline" />
     <view name="timeline" />
   </collection> 
+  <collection label="Keywords Hunt">
+    <view name="kw_hunt_win" />
+  </collection> 
   <view name="autorunsc" />
   <view name="hayabusa" />
   <collection label="Default"> 
