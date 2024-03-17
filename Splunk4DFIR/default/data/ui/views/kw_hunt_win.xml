@@ -10,7 +10,7 @@
     <latest>$timepicker.latest$</latest>
   </search>
    <search base="base" id="filtered_base">
-    <query> | search metadata_keyword_type IN ( $selected_type$ ) metadata_category IN ( $selected_category$ ) </query>
+    <query> | search metadata_keyword_type IN ( $selected_type$ ) metadata_category IN ( $selected_category$ ) metadata_tool IN ( $selected_tool$ ) </query>
   </search>
   <fieldset submitButton="true">
     <input type="time" token="timepicker">
@@ -46,6 +46,19 @@
       </search>
       <fieldForLabel>metadata_category</fieldForLabel>
       <fieldForValue>metadata_category</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_tool" searchWhenChanged="true">
+      <label>Select Tool</label>
+      <search base="base">
+        <query>| stats count by metadata_tool | dedup metadata_tool</query>
+      </search>
+      <fieldForLabel>metadata_tool</fieldForLabel>
+      <fieldForValue>metadata_tool</fieldForValue>
       <delimiter> , </delimiter>
       <default>*</default>
       <valuePrefix>"</valuePrefix>
