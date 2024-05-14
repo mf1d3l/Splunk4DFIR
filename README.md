@@ -4,6 +4,8 @@
 
 Quickly spin up a splunk instance with Docker to browse through logs and tools output during your investigations. 
 
+![](doc/images/splunk4dfir_demo.png)
+
 This is a simple quality of life improvement project built upon the amazing work below:
 
 - https://github.com/omerbenamram/evtx
