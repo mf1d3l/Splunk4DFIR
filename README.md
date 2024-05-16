@@ -35,6 +35,7 @@ sudo docker run --name splunk4dfir -e SPLUNK_START_ARGS=--accept-license -e SPLU
 
 goto: http://127.0.0.1:8000/en-US/app/Splunk4DFIR/search
 
+Some errors during build may be due to an older version of docker that doesnt use BuildKit by default, you may try the following workaround in this case: `sudo DOCKER_BUILDKIT=1 docker build -t splunk4dfir .`
 
 ## Supported inputs
 
