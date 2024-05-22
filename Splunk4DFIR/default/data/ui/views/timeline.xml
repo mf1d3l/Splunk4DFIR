@@ -17,7 +17,7 @@
     <input type="multiselect" token="selected_source" searchWhenChanged="true">
       <label>Select source</label>
       <search>
-        <query>`timeline` | fields source | dedup source</query>
+        <query>`timelines` | fields source | dedup source</query>
       </search>
       <fieldForLabel>source</fieldForLabel>
       <fieldForValue>source</fieldForValue>
@@ -30,7 +30,7 @@
     <input type="multiselect" token="selected_macb" searchWhenChanged="true">
       <label>Select MACB</label>
       <search>
-        <query>`timeline` | stats count by Type| dedup Type</query>
+        <query>`timelines` | stats count by Type| dedup Type</query>
       </search>
       <fieldForLabel>MACB</fieldForLabel>
       <fieldForValue>MACB</fieldForValue>
@@ -48,7 +48,7 @@
       <title>Timeline</title>
       <table>
         <search>
-          <query>`timeline` source IN ( $selected_source$ ) Type IN ( $selected_macb$ ) $text_filter$
+          <query>`timelines` source IN ( $selected_source$ ) Type IN ( $selected_macb$ ) $text_filter$
 | table source Date Type  Meta  "File Name"   </query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
