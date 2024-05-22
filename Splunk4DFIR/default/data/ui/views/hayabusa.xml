@@ -113,6 +113,9 @@
 | stats count by Level</query>
         </search>
         <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_level">"$click.value$"</set>
+        </drilldown>
       </chart>
     </panel>
     <panel>
@@ -123,6 +126,9 @@
 | stats count by Computer</query>
         </search>
         <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_host">"$click.value$"</set>
+        </drilldown>
       </chart>
     </panel>
   </row>
@@ -137,6 +143,9 @@
         <option name="charting.chart">column</option>
         <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="selected_level">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
     <panel>
@@ -149,11 +158,14 @@
         <option name="charting.chart">column</option>
         <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="selected_host">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
   </row>
   <row>
-      <panel>
+    <panel>
       <title>Rule Timeline</title>
       <chart>
         <search base="filtered_base">
@@ -163,10 +175,13 @@
         <option name="charting.chart">column</option>
         <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="selected_rule">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
   </row>
-   <row>
+  <row>
     <panel>
       <title>Hayabusa detections - aggregated by Rule</title>
       <table>
@@ -178,6 +193,9 @@
         </search>
         <option name="count">10</option>
         <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="selected_rule">"$click.value2$"</set>
+        </drilldown>
       </table>
     </panel>
     <panel>
@@ -191,6 +209,9 @@
         </search>
         <option name="count">10</option>
         <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="selected_host">"$click.value2$"</set>
+        </drilldown>
       </table>
     </panel>
   </row>
