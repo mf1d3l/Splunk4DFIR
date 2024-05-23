@@ -1,0 +1,49 @@
+<form version="1.1" theme="dark">
+  <label>Loldrivers</label>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source</label>
+      <search>
+        <query>`timelines` | fields source | dedup source</query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Loldrivers</title>
+      <table>
+        <search>
+          <query>| inputlookup loldrivers.csv
+| rex field=KnownVulnerableSamples_MD5 "(?&lt;md5&gt;[a-zA-Z0-9]{32})" max_match=100
+| rex field=KnownVulnerableSamples_SHA256 "(?&lt;sha256&gt;[a-zA-Z0-9]{64})" max_match=100
+| stats count by Tags  md5 sha256 </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>
