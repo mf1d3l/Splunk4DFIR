@@ -1,5 +1,13 @@
 <form version="1.1" theme="dark">
   <label>Loldrivers</label>
+  <search id="base">
+    <query>index=* source IN ( "$selected_source$" )[ | inputlookup loldrivers.csv
+| rex field=KnownVulnerableSamples_SHA256 "(?&lt;hashes&gt;[a-zA-Z0-9]{64})" max_match=100
+| stats count  by Tags hashes
+| fields hashes | rename hashes as query ] | table _time source _raw </query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
   <fieldset submitButton="true">
     <input type="time" token="timepicker">
       <label>Time span</label>
@@ -17,7 +25,7 @@
     <input type="multiselect" token="selected_source" searchWhenChanged="true">
       <label>Select source</label>
       <search>
-        <query>`timelines` | fields source | dedup source</query>
+        <query>index=* | fields source | dedup source</query>
       </search>
       <fieldForLabel>source</fieldForLabel>
       <fieldForValue>source</fieldForValue>
@@ -30,15 +38,23 @@
   </fieldset>
   <row>
     <panel>
-      <title>Loldrivers</title>
+      <title>Loldrivers Timeline</title>
+      <chart>
+        <search base="base">
+          <query>|timechart count by source</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Loldrivers Matches</title>
       <table>
-        <search>
-          <query>| inputlookup loldrivers.csv
-| rex field=KnownVulnerableSamples_MD5 "(?&lt;md5&gt;[a-zA-Z0-9]{32})" max_match=100
-| rex field=KnownVulnerableSamples_SHA256 "(?&lt;sha256&gt;[a-zA-Z0-9]{64})" max_match=100
-| stats count by Tags  md5 sha256 </query>
-          <earliest>$timepicker.earliest$</earliest>
-          <latest>$timepicker.latest$</latest>
+        <search base="base">
+          <query/>
         </search>
         <option name="count">20</option>
         <option name="drilldown">cell</option>
