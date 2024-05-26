@@ -18,7 +18,7 @@ This is a simple quality of life improvement project built upon the amazing work
 
 Splunk4DFIR is made of 3 main components: 
   - some basic data ingestion configuration modules and scripts
-  - a collection a ready to use dashboards to get started visualizing the data
+  - a collection of ready to use dashboards to get started visualizing the data
   - savedsearches translated from [sigma rules](https://github.com/SigmaHQ/sigma) to be run against the data for triage
 
 ## Motivation
