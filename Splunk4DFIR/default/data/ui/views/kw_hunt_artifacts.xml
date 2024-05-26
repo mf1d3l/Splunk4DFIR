@@ -86,11 +86,13 @@
       <chart>
         <search base="filtered_base">
           <query>
-| timechart count by metadata_category
-</query>
+| timechart count by metadata_category</query>
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_category">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
     <panel>
@@ -98,11 +100,13 @@
       <chart>
         <search base="filtered_base">
           <query>
-| timechart count by metadata_tool
-</query>
+| timechart count by metadata_tool</query>
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_tool">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
   </row>

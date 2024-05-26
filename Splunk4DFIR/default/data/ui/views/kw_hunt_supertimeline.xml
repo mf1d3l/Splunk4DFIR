@@ -91,6 +91,9 @@
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_category">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
     <panel>
@@ -103,6 +106,9 @@
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_tool">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
   </row>
