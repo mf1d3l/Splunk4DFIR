@@ -14,16 +14,22 @@ This is a simple quality of life improvement project built upon the amazing work
 - https://github.com/SigmaHQ
 - https://github.com/Yamato-Security/hayabusa
 - https://github.com/mthcht/ThreatHunting-Keywords
+- https://github.com/magicsword-io/LOLDrivers
+
+Splunk4DFIR is made of 3 main components: 
+  - some basic data ingestion configuration modules and scripts
+  - a collection a ready to use dashboards to get started visualizing the data
+  - savedsearches translated from sigma rules to be run against the data for triage
 
 ## Motivation
 
-SOC to DFIR is getting a natural career path and considering the current market shares of Splunk and Crowdstrike, familiarity with SPL(-like) query languages is getting widespread within the DFIR community.
+SOC to DFIR is getting a natural career path and considering the current market shares of Splunk and Crowdstrike, familiarity with SPL(-like) query languages is getting widespread within the DFIR community. This project enables you to quickly spin up in no time on whatever workstation you have in your hands a lightweight environment to demonstrate your SPL-fu and save the day.
 
 In DFIR it is common to juggle between different VMs and operating systems to be able to use all your favourite tools. Using Docker is convenient for portability.
 
-When on the field you may not have access  nor the time to transfer case artifact to a private cloud hosted lab and using a public cloud may be out of the question for coutless regulatory reasons, this project enables you to spin up in no time on whatever workstation you have in your hands an environment to demonstrate your SPL-fu and save the day.
+When it comes to evtx files specifically, key differenciator of this project is that it provides a light ananalysis environment that can run on a single linux host where most splunk lab environment typically requires a dedicated windows host because official Splunk evtx ingestors rely on underlying windows OS APIs.  
 
- 
+
 ## HOW-TO
 
 Drop your files under the appropriate folder in `artifacts/` then build and run the container.
@@ -36,6 +42,8 @@ sudo docker run --name splunk4dfir -e SPLUNK_START_ARGS=--accept-license -e SPLU
 goto: http://127.0.0.1:8000/en-US/app/Splunk4DFIR/search
 
 Some errors during build may be due to an older version of docker that doesnt use BuildKit by default, you may try the following workaround in this case: `sudo DOCKER_BUILDKIT=1 docker build -t splunk4dfir .`
+
+If you dont see data being ingested, check the permissions of your artifacts files.
 
 ## Supported inputs
 
