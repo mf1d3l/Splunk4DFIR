@@ -1,5 +1,5 @@
 <form version="1.1" theme="dark">
-  <label>Loldrivers</label>
+  <label>Loldrivers IOC Hunt</label>
   <search id="base">
     <query>index=* source IN ( "$selected_source$" )[ | inputlookup loldrivers.csv
 | rex field=KnownVulnerableSamples_SHA256 "(?&lt;hashes&gt;[a-zA-Z0-9]{64})" max_match=100
