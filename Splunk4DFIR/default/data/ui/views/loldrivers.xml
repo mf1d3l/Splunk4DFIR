@@ -1,8 +1,24 @@
 <form version="1.1" theme="dark">
   <label>Loldrivers IOC Hunt</label>
-  <search id="base">
+  <search id="base_sha256">
     <query>index=* source IN ( "$selected_source$" )[ | inputlookup loldrivers.csv
 | rex field=KnownVulnerableSamples_SHA256 "(?&lt;hashes&gt;[a-zA-Z0-9]{64})" max_match=100
+| stats count  by Tags hashes
+| fields hashes | rename hashes as query ] | table _time source _raw </query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <search id="base_sha1">
+    <query>index=* source IN ( "$selected_source$" )[ | inputlookup loldrivers.csv
+| rex field=KnownVulnerableSamples_SHA1 "(?&lt;hashes&gt;[a-zA-Z0-9]{40})" max_match=100
+| stats count  by Tags hashes
+| fields hashes | rename hashes as query ] | table _time source _raw </query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <search id="base_md5">
+    <query>index=* source IN ( "$selected_source$" )[ | inputlookup loldrivers.csv
+| rex field=KnownVulnerableSamples_MD5 "(?&lt;hashes&gt;[a-zA-Z0-9]{32})" max_match=100
 | stats count  by Tags hashes
 | fields hashes | rename hashes as query ] | table _time source _raw </query>
     <earliest>$timepicker.earliest$</earliest>
@@ -38,9 +54,9 @@
   </fieldset>
   <row>
     <panel>
-      <title>Loldrivers Timeline</title>
+      <title>Loldrivers Timeline - SHA256</title>
       <chart>
-        <search base="base">
+        <search base="base_sha256">
           <query>|timechart count by source</query>
         </search>
         <option name="charting.chart">column</option>
@@ -48,12 +64,58 @@
         <option name="refresh.display">progressbar</option>
       </chart>
     </panel>
+    <panel>
+      <title>Loldrivers Matches - SHA256</title>
+      <table>
+        <search base="base_sha256">
+          <query/>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
   </row>
   <row>
     <panel>
-      <title>Loldrivers Matches</title>
+      <title>Loldrivers Timeline - SHA1</title>
+      <chart>
+        <search base="base_sha1">
+          <query>|timechart count by source</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Loldrivers Matches - SHA1</title>
       <table>
-        <search base="base">
+        <search base="base_sha1">
+          <query/>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Loldrivers Timeline - MD5</title>
+      <chart>
+        <search base="base_md5">
+          <query>|timechart count by source</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Loldrivers Matches - MD5</title>
+      <table>
+        <search base="base_md5">
           <query/>
         </search>
         <option name="count">20</option>
