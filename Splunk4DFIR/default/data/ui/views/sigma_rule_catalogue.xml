@@ -62,7 +62,7 @@
       <title>Rules by Tactic</title>
       <chart>
         <search base="base">
-          <query>| search title IN ( $selected_rule$ ) tag IN ( $selected_tag$ ) guid IN ( $selected_guid$ ) | stats count by tag | search tag="attack.*" NOT tag="attack.t*"</query>
+          <query>| search title IN ( $selected_rule$ ) tag IN ( $selected_tag$ ) guid IN ( $selected_guid$ ) | stats count by tag |  regex tag="attack\.\D\D"</query>
         </search>
         <option name="charting.chart">pie</option>
         <option name="refresh.display">progressbar</option>
@@ -88,7 +88,7 @@
       <title>Other tags</title>
       <chart>
         <search base="base">
-          <query>| search title IN ( $selected_rule$ ) tag IN ( $selected_tag$ ) guid IN ( $selected_guid$ ) | stats count by tag | regex tag="attack\.\D\D"</query>
+          <query>| search title IN ( $selected_rule$ ) tag IN ( $selected_tag$ ) guid IN ( $selected_guid$ ) | stats count by tag | search NOT tag=attack.*</query>
         </search>
         <option name="charting.chart">pie</option>
         <option name="refresh.display">progressbar</option>
