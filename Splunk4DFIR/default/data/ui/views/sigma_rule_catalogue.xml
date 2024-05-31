@@ -1,0 +1,114 @@
+<form version="1.1" theme="dark">
+  <label>Sigma Rules Catalogue</label>
+  <search id="base">
+    <query>| rest /servicesNS/-/Splunk4DFIR/saved/searches 
+| rex field=search "guid=(?&lt;guid&gt;[^\,]+),"
+| rex field=search  max_match=0 "tags=(?&lt;tag&gt;[^\,]+),"
+| table title guid tag search</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="multiselect" token="selected_rule" searchWhenChanged="true">
+      <label>Select Rule</label>
+      <search base="base">
+        <query>| stats count by title| dedup title</query>
+      </search>
+      <fieldForLabel>title</fieldForLabel>
+      <fieldForValue>title</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_tag" searchWhenChanged="true">
+      <label>Select Tag</label>
+      <search base="base">
+        <query>| stats count by tag| dedup tag</query>
+      </search>
+      <fieldForLabel>tag</fieldForLabel>
+      <fieldForValue>tag</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_guid" searchWhenChanged="true">
+      <label>Select rule GUID</label>
+      <search base="base">
+        <query>| stats count by guid| dedup guid</query>
+      </search>
+      <fieldForLabel>guid</fieldForLabel>
+      <fieldForValue>guid</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Rules by Tactic</title>
+      <chart>
+        <search base="base">
+          <query>| search title IN ( $selected_rule$ ) tag IN ( $selected_tag$ ) guid IN ( $selected_guid$ ) | stats count by tag | search tag="attack.*" NOT tag="attack.t*"</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="refresh.display">progressbar</option>
+       <drilldown>
+          <set token="selected_tag">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Rules by Technique</title>
+      <chart>
+        <search base="base">
+          <query>| search title IN ( $selected_rule$ ) tag IN ( $selected_tag$ ) guid IN ( $selected_guid$ ) | stats count by tag | search tag="attack.t*"</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="selected_tag">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+     <panel>
+      <title>Other tags</title>
+      <chart>
+        <search base="base">
+          <query>| search title IN ( $selected_rule$ ) tag IN ( $selected_tag$ ) guid IN ( $selected_guid$ ) | stats count by tag | search NOT tag="attack.*"</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="selected_tag">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Imported Sigma Rules</title>
+      <table>
+        <search base="base">
+          <query>| search title IN ( $selected_rule$ ) tag IN ( $selected_tag$ ) guid IN ( $selected_guid$ )</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

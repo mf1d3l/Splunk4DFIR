@@ -1,5 +1,8 @@
 <nav search_view="search">
-  <view name="sigma_rule_hits"/>
+  <collection label="Sigma Rules">
+    <view name="sigma_rule_hits"/>
+    <view name="sigma_rule_catalogue"/>
+  </collection> 
   <collection label="NSM">
     <view name="suricata_alerts" />
     <view name="zeek" />
