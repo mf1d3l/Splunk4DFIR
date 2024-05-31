@@ -65,7 +65,7 @@
     <input type="multiselect" token="selected_process" searchWhenChanged="true">
       <label>Select Process</label>
       <search base="base">
-        <query>| stats count by process_path | dedup process_path | rex mode=sed field=process_path "s/\\\\/\\\\\\\\/g" </query>
+        <query>| stats count by process_path | dedup process_path</query>
       </search>
       <fieldForLabel>process_path</fieldForLabel>
       <fieldForValue>process_path</fieldForValue>
@@ -86,6 +86,9 @@
         <option name="charting.chart">column</option>
         <option name="charting.chart.showDataLabels">none</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_rule">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
     <panel>
@@ -97,6 +100,9 @@
         <option name="charting.chart">column</option>
         <option name="charting.chart.showDataLabels">none</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_dvc">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
   </row>
@@ -105,22 +111,28 @@
       <title>Timeline - User</title>
       <chart>
         <search base="filtered_base">
-          <query>| timechart count by user</query>
+          <query>| rex mode=sed field=user "s/\\\\/\\\\\\\\/g" | timechart count by user</query>
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.showDataLabels">none</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_user">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
     <panel>
       <title>Timeline - Process</title>
       <chart>
         <search base="filtered_base">
-          <query>| timechart count by process_path</query>
+          <query>| rex mode=sed field=process_path "s/\\\\/\\\\\\\\/g" | timechart count by process_path</query>
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.showDataLabels">none</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_process">"$click.name2$"</set>
+        </drilldown>
       </chart>
     </panel>
   </row>
