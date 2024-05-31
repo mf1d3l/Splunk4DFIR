@@ -64,6 +64,8 @@
         <option name="refresh.display">progressbar</option>
       </chart>
     </panel>
+  </row>
+  <row>
     <panel>
       <title>Loldrivers Matches - SHA256</title>
       <table>
@@ -88,6 +90,8 @@
         <option name="refresh.display">progressbar</option>
       </chart>
     </panel>
+  </row>
+  <row>
     <panel>
       <title>Loldrivers Matches - SHA1</title>
       <table>
@@ -112,6 +116,8 @@
         <option name="refresh.display">progressbar</option>
       </chart>
     </panel>
+  </row>
+  <row>
     <panel>
       <title>Loldrivers Matches - MD5</title>
       <table>
