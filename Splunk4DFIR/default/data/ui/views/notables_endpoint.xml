@@ -1,15 +1,15 @@
 <form version="1.1" theme="dark">
   <label>Notables - Endpoint</label>
   <search id="base">
-    <query>index=notable_events | fillnull value="NA" source guid dvc _raw | fields _time source guid dvc _raw</query>
+    <query>index=notable_events "$text_filter$" | fillnull value="NA" source guid dvc user process_path _raw | fields _time source guid dvc user process_path _raw</query>
     <earliest>$timepicker.earliest$</earliest>
     <latest>$timepicker.latest$</latest>
     <sampleRatio>1</sampleRatio>
   </search>
   <search id="filtered_base" base="base">
     <query>
-| search dvc IN ( $selected_dvc$ ) source IN ( $selected_rule$ )
-| table _time source guid dvc _raw</query>
+| search dvc IN ( $selected_dvc$ ) source IN ( $selected_rule$ ) user IN ( $selected_user$ ) process_path IN ( $selected_process$ )
+| table _time source guid dvc user process_path _raw</query>
   </search>
   <fieldset submitButton="true">
     <input type="time" token="timepicker">
@@ -18,6 +18,10 @@
         <earliest>-24h@h</earliest>
         <latest>now</latest>
       </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
     </input>
     <input type="multiselect" token="selected_dvc" searchWhenChanged="true">
       <label>Select Device</label>
@@ -45,6 +49,32 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
+    <input type="multiselect" token="selected_user" searchWhenChanged="true">
+      <label>Select User</label>
+      <search base="base">
+        <query>| stats count by user | dedup user | rex mode=sed field=user "s/\\\\/\\\\\\\\/g"</query>
+      </search>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_process" searchWhenChanged="true">
+      <label>Select Process</label>
+      <search base="base">
+        <query>| stats count by process_path | dedup process_path | rex mode=sed field=process_path "s/\\\\/\\\\\\\\/g" </query>
+      </search>
+      <fieldForLabel>process_path</fieldForLabel>
+      <fieldForValue>process_path</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
   </fieldset>
   <row>
     <panel>
@@ -63,6 +93,30 @@
       <chart>
         <search base="filtered_base">
           <query>| timechart count by dvc</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timeline - User</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| timechart count by user</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Timeline - Process</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| timechart count by process_path</query>
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.showDataLabels">none</option>
