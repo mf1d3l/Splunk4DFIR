@@ -1,5 +1,5 @@
 <form version="1.1" theme="dark">
-  <label>NotablesHunt - Endpoint</label>
+  <label>Notables - Endpoint</label>
   <search id="base">
     <query>index=notable_events | fillnull value="NA" source guid dvc _raw | fields _time source guid dvc _raw</query>
     <earliest>$timepicker.earliest$</earliest>
