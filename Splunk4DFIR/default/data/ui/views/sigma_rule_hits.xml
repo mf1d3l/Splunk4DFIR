@@ -39,8 +39,8 @@
       <title>Sigma Rules Hits</title>
       <table>
         <search>
-          <query>index=_internal sourcetype=scheduler  app=Splunk4DFIR result_count!=0 savedsearch_name=$rule_name$
-| table _time status result_count savedsearch_name</query>
+          <query>index=_internal sourcetype=scheduler  app=Splunk4DFIR result_count!=0 savedsearch_name=$rule_name$ | eval search_time = _time
+| table search_time status result_count savedsearch_name | convert ctime(*_time)</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
           <sampleRatio>1</sampleRatio>

@@ -1,7 +1,7 @@
 <nav search_view="search">
   <collection label="Sigma Rules">
-    <view name="sigma_rule_hits"/>
     <view name="sigma_rule_catalogue"/>
+    <view name="sigma_rule_hits"/>
   </collection> 
   <collection label="NSM">
     <view name="suricata_alerts" />
