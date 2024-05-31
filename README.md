@@ -21,6 +21,8 @@ Splunk4DFIR is made of 3 main components:
   - a collection of ready to use dashboards to get started visualizing the data
   - savedsearches translated from [sigma rules](https://github.com/SigmaHQ/sigma) to be run against the data for triage
 
+The apps comes with pre-compiled sigma rules in its savedsearches.conf but the philosophy of the project is to allow you to easily import any ruleset you want with the pysigma pipelines provided, see [link](#sigma-rules-support)
+
 ## Motivation
 
 SOC to DFIR is getting a natural career path and considering the current market shares of Splunk and Crowdstrike, familiarity with SPL(-like) query languages is getting widespread within the DFIR community. This project enables you to quickly spin up in no time on whatever workstation you have in your hands a lightweight environment to demonstrate your SPL-fu and save the day.
@@ -55,7 +57,7 @@ If you dont see data being ingested, check the permissions of your artifacts fil
 - `artifacts/suricata/`: drop there your eve.json suricata file
 - `artifacts/supertimelines/`: drop there your plaso l2tcsv outputs
 
-additionnaly some macros are configurable to point to specific tools output sourcetypes:
+additionnaly some [macros](Splunk4DFIR/default/macros.conf) are configurable to point to specific tools output sourcetypes sucha as:
 
 - `autorunsc`: points to autorunsc csv output files
 - `prefetch`: points to PECmd csv output files
