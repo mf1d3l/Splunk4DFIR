@@ -1,7 +1,7 @@
 <form version="1.1" theme="dark">
   <label>Notables - Endpoint</label>
   <search id="base">
-    <query>index=notable_events "$text_filter$" | fillnull value="NA" source guid dvc user process_path _raw | fields _time source guid dvc user process_path _raw</query>
+    <query>index=notable_events "$text_filter$" dvc=* | fillnull value="NA" source guid dvc user process_path _raw | fields _time source guid dvc user process_path _raw</query>
     <earliest>$timepicker.earliest$</earliest>
     <latest>$timepicker.latest$</latest>
     <sampleRatio>1</sampleRatio>
@@ -65,7 +65,7 @@
     <input type="multiselect" token="selected_process" searchWhenChanged="true">
       <label>Select Process</label>
       <search base="base">
-        <query>| stats count by process_path | dedup process_path</query>
+        <query>| stats count by process_path | dedup process_path | rex mode=sed field=process_path "s/\\\\/\\\\\\\\/g" </query>
       </search>
       <fieldForLabel>process_path</fieldForLabel>
       <fieldForValue>process_path</fieldForValue>
@@ -76,6 +76,34 @@
       <choice value="*">ALL</choice>
     </input>
   </fieldset>
+  <row>
+    <panel>
+      <title>Rule Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by source</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_rule">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Device Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by dvc</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_dvc">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>Timeline - Rule</title>
