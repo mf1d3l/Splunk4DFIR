@@ -21,7 +21,7 @@ Splunk4DFIR is made of 3 main components:
   - a collection of ready to use dashboards to get started visualizing the data
   - savedsearches translated from [sigma rules](https://github.com/SigmaHQ/sigma) to be run against the data for triage
 
-The apps comes with pre-compiled sigma rules in its savedsearches.conf but the philosophy of the project is to allow you to easily import any ruleset you want with the [pysigma pipelines](sigma/pipelines) provided, see [Sigma Rules Support](#sigma-rules-support)
+The app comes with pre-compiled sigma rules in its savedsearches.conf but the philosophy of the project is to allow you to easily import any ruleset you want with the [pysigma pipelines](sigma/pipelines) provided, see [Sigma Rules Support](#sigma-rules-support)
 
 ## Motivation
 
