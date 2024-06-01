@@ -57,7 +57,7 @@ If you dont see data being ingested, check the permissions of your artifacts fil
 - `artifacts/suricata/`: drop there your eve.json suricata file
 - `artifacts/supertimelines/`: drop there your plaso l2tcsv outputs
 
-additionnaly some [macros](Splunk4DFIR/default/macros.conf) are configurable to point to specific tools output sourcetypes sucha as:
+additionnaly some [macros](Splunk4DFIR/default/macros.conf) are configurable to point to specific tools output sourcetypes such as:
 
 - `autorunsc`: points to autorunsc csv output files
 - `prefetch`: points to PECmd csv output files
