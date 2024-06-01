@@ -1,0 +1,178 @@
+<form version="1.1" theme="dark">
+  <label>Notables - Endpoint</label>
+  <search id="base">
+    <query>index=notable_events "$text_filter$" dvc=* | fillnull value="NA" source guid dvc user process_path _raw | fields _time source guid dvc user process_path _raw</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <search id="filtered_base" base="base">
+    <query>
+| search dvc IN ( $selected_dvc$ ) source IN ( $selected_rule$ ) user IN ( $selected_user$ ) process_path IN ( $selected_process$ )
+| table _time source guid dvc user process_path _raw</query>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+    </input>
+    <input type="multiselect" token="selected_dvc" searchWhenChanged="true">
+      <label>Select Device</label>
+      <search base="base">
+        <query>| stats count by dvc | dedup dvc</query>
+      </search>
+      <fieldForLabel>dvc</fieldForLabel>
+      <fieldForValue>dvc</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_rule" searchWhenChanged="true">
+      <label>Select Rule</label>
+      <search base="base">
+        <query>| stats count by source | dedup source</query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_user" searchWhenChanged="true">
+      <label>Select User</label>
+      <search base="base">
+        <query>| stats count by user | dedup user | rex mode=sed field=user "s/\\\\/\\\\\\\\/g"</query>
+      </search>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_process" searchWhenChanged="true">
+      <label>Select Process</label>
+      <search base="base">
+        <query>| stats count by process_path | dedup process_path | rex mode=sed field=process_path "s/\\\\/\\\\\\\\/g" </query>
+      </search>
+      <fieldForLabel>process_path</fieldForLabel>
+      <fieldForValue>process_path</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Rule Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by source</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_rule">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Device Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by dvc</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_dvc">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timeline - Rule</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| timechart count by source</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_rule">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Timeline - Device</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| timechart count by dvc</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_dvc">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timeline - User</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| rex mode=sed field=user "s/\\\\/\\\\\\\\/g" | timechart count by user</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_user">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Timeline - Process</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| rex mode=sed field=process_path "s/\\\\/\\\\\\\\/g" | timechart count by process_path</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_process">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Notables</title>
+      <table>
+        <search base="filtered_base">
+          <query/>
+        </search>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>
