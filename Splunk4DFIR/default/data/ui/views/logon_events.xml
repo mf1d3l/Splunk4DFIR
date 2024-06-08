@@ -1,0 +1,159 @@
+<form version="1.1" theme="dark">
+  <label>Logon Events</label>
+  <search id="base">
+    <query>index=evtx "$text_filter$" signature_id IN ("4624" "4625") | fields _time source EventID dvc TargetDomainName TargetUserName LogonType Status SubStatus AuthenticationPackageName LmPackageName WorkstationName IpAddress ProcessName </query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <search id="filtered_base" base="base">
+    <query>
+| search dvc IN ( $selected_dvc$ )
+| table  _time source EventID dvc TargetDomainName TargetUserName LogonType Status SubStatus AuthenticationPackageName LmPackageName WorkstationName IpAddress ProcessName</query>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+    </input>
+    <input type="multiselect" token="selected_dvc" searchWhenChanged="true">
+      <label>Select Device</label>
+      <search base="base">
+        <query>| stats count by dvc | dedup dvc</query>
+      </search>
+      <fieldForLabel>dvc</fieldForLabel>
+      <fieldForValue>dvc</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Events Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by EventID</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_rule">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Device Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by dvc</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_rule">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Process Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by ProcessName</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_rule">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>LogonType Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by LogonType</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_rule">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Source IP Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by IpAddress</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_rule">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Source Workstation Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by WorkstationName</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_rule">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Domain Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by TargetDomainName</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_dvc">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Users Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by TargetUserName</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_dvc">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Events</title>
+      <table>
+        <search base="filtered_base">
+          <query/>
+        </search>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>

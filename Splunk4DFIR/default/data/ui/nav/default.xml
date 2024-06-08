@@ -4,6 +4,9 @@
     <view name="sigma_rule_hits"/>
     <view name="notables_endpoint"/>
   </collection> 
+  <collection label="Wineventlog">
+    <view name="logon_events" />
+  </collection> 
   <collection label="NSM">
     <view name="suricata_alerts" />
     <view name="zeek" />
