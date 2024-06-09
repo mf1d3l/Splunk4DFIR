@@ -4,7 +4,7 @@
     <view name="sigma_rule_hits"/>
     <view name="notables_endpoint"/>
   </collection> 
-  <collection label="Wineventlog">
+  <collection label="WinEventLog">
     <view name="logon_events" />
   </collection> 
   <collection label="NSM">
