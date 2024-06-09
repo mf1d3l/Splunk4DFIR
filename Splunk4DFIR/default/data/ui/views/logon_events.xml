@@ -12,7 +12,7 @@
   <search id="filtered_base" base="base">
     <query>
 | search dvc IN ( $selected_dvc$ ) EventID IN ( $selected_event$ ) LogonType IN ( $selected_logontype$ ) AuthenticationPackageName IN ( $selected_authpkg$ ) LmPackageName IN ( $selected_lmpkg$ ) Status IN ( $selected_status$ )  SubStatus IN ( $selected_substatus$ )  IpAddress IN ( $selected_srcip$ ) WorkstationName IN ( $selected_srcwkstn$ ) TargetDomainName IN ( $selected_domain$ ) TargetUserName IN ( $selected_user$ )
-| table  _time source EventID dvc TargetDomainName TargetUserName LogonType Status SubStatus AuthenticationPackageName LmPackageName WorkstationName IpAddress ProcessName</query>
+| table  _time EventID dvc TargetDomainName TargetUserName LogonType Status SubStatus AuthenticationPackageName LmPackageName WorkstationName IpAddress ProcessName source </query>
   </search>
   <fieldset submitButton="true">
     <input type="time" token="timepicker">
@@ -52,7 +52,7 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
-     <input type="multiselect" token="selected_logontype" searchWhenChanged="true">
+    <input type="multiselect" token="selected_logontype" searchWhenChanged="true">
       <label>Select LogonType</label>
       <search base="base">
         <query>| stats count by LogonType | dedup LogonType</query>
@@ -65,8 +65,8 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
-     <input type="multiselect" token="selected_authpkg" searchWhenChanged="true">
-      <label>Select AuthenticationPackageName </label>
+    <input type="multiselect" token="selected_authpkg" searchWhenChanged="true">
+      <label>Select AuthenticationPackageName</label>
       <search base="base">
         <query>| stats count by AuthenticationPackageName  | dedup AuthenticationPackageName </query>
       </search>
@@ -104,7 +104,7 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
-        <input type="multiselect" token="selected_substatus" searchWhenChanged="true">
+    <input type="multiselect" token="selected_substatus" searchWhenChanged="true">
       <label>Select SubStatus</label>
       <search base="base">
         <query>| stats count by SubStatus | dedup SubStatus</query>
@@ -130,7 +130,7 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
-        <input type="multiselect" token="selected_srcwkstn" searchWhenChanged="true">
+    <input type="multiselect" token="selected_srcwkstn" searchWhenChanged="true">
       <label>Select Source Workstation</label>
       <search base="base">
         <query>| stats count by WorkstationName | dedup WorkstationName</query>
@@ -143,7 +143,7 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
-        <input type="multiselect" token="selected_domain" searchWhenChanged="true">
+    <input type="multiselect" token="selected_domain" searchWhenChanged="true">
       <label>Select Domain</label>
       <search base="base">
         <query>| stats count by TargetDomainName | dedup TargetDomainName</query>
@@ -156,7 +156,7 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
-        <input type="multiselect" token="selected_user" searchWhenChanged="true">
+    <input type="multiselect" token="selected_user" searchWhenChanged="true">
       <label>Select User</label>
       <search base="base">
         <query>| stats count by TargetUserName | dedup TargetUserName</query>
@@ -361,6 +361,30 @@
           <set token="selected_srcip">"$click.name2$"</set>
         </drilldown>
       </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Remote logons - Source IP to Device</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search base="filtered_base">
+          <query>|search NOT IpAddress IN ("127.0.0.1" "::1" "-")
+|stats count by IpAddress dvc</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>Logons - User to Device</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search base="filtered_base">
+          <query>
+| stats count by TargetUserName dvc</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
+      </viz>
     </panel>
   </row>
   <row>
