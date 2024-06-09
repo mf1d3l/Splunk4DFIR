@@ -1,0 +1,393 @@
+<form version="1.1" theme="dark">
+  <label>Logon Events</label>
+  <search id="base">
+    <query>index=evtx "$text_filter$" signature_id IN ("4624" "4625") NOT TargetDomainName IN ("NT AUTHORITY" "Window Manager" "Font Driver Host")
+    | fields _time source EventID dvc TargetDomainName TargetUserName LogonType Status SubStatus AuthenticationPackageName LmPackageName WorkstationName IpAddress ProcessName 
+    | fillnull value="NA" TargetDomainName TargetUserName LogonType Status SubStatus AuthenticationPackageName LmPackageName WorkstationName IpAddress ProcessName
+    </query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <search id="filtered_base" base="base">
+    <query>
+| search dvc IN ( $selected_dvc$ ) EventID IN ( $selected_event$ ) LogonType IN ( $selected_logontype$ ) AuthenticationPackageName IN ( $selected_authpkg$ ) LmPackageName IN ( $selected_lmpkg$ ) Status IN ( $selected_status$ )  SubStatus IN ( $selected_substatus$ )  IpAddress IN ( $selected_srcip$ ) WorkstationName IN ( $selected_srcwkstn$ ) TargetDomainName IN ( $selected_domain$ ) TargetUserName IN ( $selected_user$ )
+| table  _time source EventID dvc TargetDomainName TargetUserName LogonType Status SubStatus AuthenticationPackageName LmPackageName WorkstationName IpAddress ProcessName</query>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+    </input>
+    <input type="multiselect" token="selected_event" searchWhenChanged="true">
+      <label>Select EventID</label>
+      <search base="base">
+        <query>| stats count by EventID | dedup EventID</query>
+      </search>
+      <fieldForLabel>EventID</fieldForLabel>
+      <fieldForValue>EventID</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_dvc" searchWhenChanged="true">
+      <label>Select Device</label>
+      <search base="base">
+        <query>| stats count by dvc | dedup dvc</query>
+      </search>
+      <fieldForLabel>dvc</fieldForLabel>
+      <fieldForValue>dvc</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+     <input type="multiselect" token="selected_logontype" searchWhenChanged="true">
+      <label>Select LogonType</label>
+      <search base="base">
+        <query>| stats count by LogonType | dedup LogonType</query>
+      </search>
+      <fieldForLabel>LogonType</fieldForLabel>
+      <fieldForValue>LogonType</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+     <input type="multiselect" token="selected_authpkg" searchWhenChanged="true">
+      <label>Select AuthenticationPackageName </label>
+      <search base="base">
+        <query>| stats count by AuthenticationPackageName  | dedup AuthenticationPackageName </query>
+      </search>
+      <fieldForLabel>AuthenticationPackageName</fieldForLabel>
+      <fieldForValue>AuthenticationPackageName</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_lmpkg" searchWhenChanged="true">
+      <label>Select LmPackageName</label>
+      <search base="base">
+        <query>| stats count by LmPackageName | dedup LmPackageName</query>
+      </search>
+      <fieldForLabel>LmPackageName</fieldForLabel>
+      <fieldForValue>LmPackageName</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_status" searchWhenChanged="true">
+      <label>Select Status</label>
+      <search base="base">
+        <query>| stats count by Status | dedup Status</query>
+      </search>
+      <fieldForLabel>Status</fieldForLabel>
+      <fieldForValue>Status</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+        <input type="multiselect" token="selected_substatus" searchWhenChanged="true">
+      <label>Select SubStatus</label>
+      <search base="base">
+        <query>| stats count by SubStatus | dedup SubStatus</query>
+      </search>
+      <fieldForLabel>SubStatus</fieldForLabel>
+      <fieldForValue>SubStatus</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_srcip" searchWhenChanged="true">
+      <label>Select Source IP</label>
+      <search base="base">
+        <query>| stats count by IpAddress| dedup IpAddress</query>
+      </search>
+      <fieldForLabel>IpAddress</fieldForLabel>
+      <fieldForValue>IpAddress</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+        <input type="multiselect" token="selected_srcwkstn" searchWhenChanged="true">
+      <label>Select Source Workstation</label>
+      <search base="base">
+        <query>| stats count by WorkstationName | dedup WorkstationName</query>
+      </search>
+      <fieldForLabel>WorkstationName</fieldForLabel>
+      <fieldForValue>WorkstationName</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+        <input type="multiselect" token="selected_domain" searchWhenChanged="true">
+      <label>Select Domain</label>
+      <search base="base">
+        <query>| stats count by TargetDomainName | dedup TargetDomainName</query>
+      </search>
+      <fieldForLabel>TargetDomainName</fieldForLabel>
+      <fieldForValue>TargetDomainName</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+        <input type="multiselect" token="selected_user" searchWhenChanged="true">
+      <label>Select User</label>
+      <search base="base">
+        <query>| stats count by TargetUserName | dedup TargetUserName</query>
+      </search>
+      <fieldForLabel>TargetUserName</fieldForLabel>
+      <fieldForValue>TargetUserName</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Events Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by EventID</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_event">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Device Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by dvc</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_dvc">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>LogonType Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by LogonType</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_logontype">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>AuthenticationPackageName Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by AuthenticationPackageName</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_authpkg">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>LmPackageName Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by LmPackageName</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_lmpkg">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Status Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by Status</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_status">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>SubStatus Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by SubStatus</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_substatus">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Source IP Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by IpAddress</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_srcip">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Source Workstation Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by WorkstationName</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_srcwkstn">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Domain Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by TargetDomainName</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_domain">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Users Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by TargetUserName</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_user">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timeline - EventID</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| timechart count by EventID</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="selected_event">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Timeline - User</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| timechart count by TargetUserName</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="selected_user">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Timeline - IpAddress</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| timechart count by IpAddress</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="selected_srcip">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Events</title>
+      <table>
+        <search base="filtered_base">
+          <query/>
+        </search>
+        <option name="drilldown">cell</option>
+        <format type="color" field="EventID">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="TargetDomainName">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="TargetUserName">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="LogonType">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>
