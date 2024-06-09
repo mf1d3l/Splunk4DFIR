@@ -365,7 +365,7 @@
   </row>
   <row>
     <panel>
-      <title>Remote logons - Source IP to Device</title>
+      <title>Logons - Source IP to Device</title>
       <viz type="sankey_diagram_app.sankey_diagram">
         <search base="filtered_base">
           <query>|search NOT IpAddress IN ("127.0.0.1" "::1" "-")
