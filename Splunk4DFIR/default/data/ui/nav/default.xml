@@ -7,6 +7,9 @@
   <collection label="WinEventLog">
     <view name="logon_events" />
   </collection> 
+  <collection label="MemProcFS">
+    <view name="memprocfs_evil" />
+  </collection> 
   <collection label="NSM">
     <view name="suricata_alerts" />
     <view name="zeek" />
