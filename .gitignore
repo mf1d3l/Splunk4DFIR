@@ -7,4 +7,5 @@ artifacts/cloudtrail/*
 artifacts/pcap/*
 artifacts/zeek/*
 artifacts/suricata/*
+artifacts/memprocfs/*
 sigma/rules/*
