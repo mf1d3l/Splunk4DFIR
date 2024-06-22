@@ -9,6 +9,7 @@
   </collection> 
   <collection label="MemProcFS">
     <view name="memprocfs_evil" />
+    <view name="memprocfs_proc" />
   </collection> 
   <collection label="NSM">
     <view name="suricata_alerts" />
