@@ -1,0 +1,112 @@
+<form version="1.1" theme="dark">
+  <label>Keywords Hunt - MemProcFS</label>
+  <search id="base">
+    <query>`memprocfs` $text_filter$ 
+| lookup threathunting-keywords keyword as _raw OUTPUT keyword as keyword_detection metadata_keyword_type metadata_tool metadata_description metadata_tool_techniques metadata_tool_tactics metadata_malwares_name metadata_groups_name metadata_category	metadata_link	metadata_enable_endpoint_detection metadata_enable_proxy_detection metadata_comment
+| search metadata_description!="" AND metadata_enable_endpoint_detection=1
+| fields _time metadata_keyword_type keyword_detection  metadata_tool metadata_description metadata_tool_techniques metadata_tool_tactics metadata_malwares_name metadata_groups_name metadata_category	metadata_link	metadata_enable_endpoint_detection metadata_enable_proxy_detection metadata_comment _raw source </query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+   <search base="base" id="filtered_base">
+    <query> | search metadata_keyword_type IN ( $selected_type$ ) metadata_category IN ( $selected_category$ ) metadata_tool IN ( $selected_tool$ ) </query>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="selected_type" searchWhenChanged="true">
+      <label>Select Keyword Type</label>
+      <search base="base">
+        <query>| stats count by metadata_keyword_type | dedup metadata_keyword_type</query>
+      </search>
+      <fieldForLabel>metadata_keyword_type</fieldForLabel>
+      <fieldForValue>metadata_keyword_type</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+     <input type="multiselect" token="selected_category" searchWhenChanged="true">
+      <label>Select Category</label>
+      <search base="base">
+        <query>| stats count by metadata_category | dedup metadata_category</query>
+      </search>
+      <fieldForLabel>metadata_category</fieldForLabel>
+      <fieldForValue>metadata_category</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_tool" searchWhenChanged="true">
+      <label>Select Tool</label>
+      <search base="base">
+        <query>| stats count by metadata_tool | dedup metadata_tool</query>
+      </search>
+      <fieldForLabel>metadata_tool</fieldForLabel>
+      <fieldForValue>metadata_tool</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Timeline Category</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| timechart count by metadata_category</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_category">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Timeline Tool</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| timechart count by metadata_tool</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="selected_tool">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Keywords Hits</title>
+      <table>
+        <search base="filtered_base">
+          <query>
+| table _time source metadata_category metadata_keyword_type metadata_tool keyword_detection _raw
+</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>

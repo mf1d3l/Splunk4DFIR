@@ -28,6 +28,7 @@
     <view name="kw_hunt_win" />
     <view name="kw_hunt_supertimeline" />
     <view name="kw_hunt_artifacts" />
+    <view name="kw_hunt_memprocfs" />
   </collection> 
   <view name="autorunsc" />
   <view name="hayabusa" />
