@@ -147,7 +147,7 @@
 | rename "L.*" as *
 | rename "R.*" as *
 | table _time src_ip src_port dest_ip dest_port src dest pid proc user
-| search proc IN ( $selected_proc$ ) user IN ( $selected_user$ )
+| search proc IN ( $selected_proc$ ) user IN ( $selected_user$ ) pid IN ( $selected_pid$ ) 
 | eval src_proc = proc.":".pid
 | stats count by src_proc dest</query>
           <earliest>$earliest$</earliest>

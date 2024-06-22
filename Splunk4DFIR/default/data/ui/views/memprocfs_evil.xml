@@ -110,11 +110,24 @@
     <panel>
       <title>All Findings</title>
       <table>
+        <title>Click on proc or pid to drilldown</title>
         <search base="filtered_base">
           <query/>
         </search>
         <option name="count">10</option>
         <option name="drilldown">cell</option>
+        <drilldown>
+          <condition field="proc">
+            <link target="_blank">
+              <![CDATA[/app/Splunk4DFIR/memprocfs_proc?form.timepicker.earliest=-24h%40h&form.timepicker.latest=now&form.text_filter=*&form.selected_proc=$row.proc$&form.selected_pid=*&form.selected_user=*]]>
+            </link>
+          </condition>
+          <condition field="pid">
+            <link target="_blank">
+              <![CDATA[/app/Splunk4DFIR/memprocfs_proc?form.timepicker.earliest=-24h%40h&form.timepicker.latest=now&form.text_filter=*&form.selected_proc=*&form.selected_pid=$row.pid$&form.selected_user=*]]>
+            </link>
+          </condition>
+        </drilldown>
       </table>
     </panel>
   </row>
