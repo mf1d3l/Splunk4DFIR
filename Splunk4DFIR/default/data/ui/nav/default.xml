@@ -7,6 +7,10 @@
   <collection label="WinEventLog">
     <view name="logon_events" />
   </collection> 
+  <collection label="MemProcFS">
+    <view name="memprocfs_evil" />
+    <view name="memprocfs_proc" />
+  </collection> 
   <collection label="NSM">
     <view name="suricata_alerts" />
     <view name="zeek" />
@@ -24,6 +28,7 @@
     <view name="kw_hunt_win" />
     <view name="kw_hunt_supertimeline" />
     <view name="kw_hunt_artifacts" />
+    <view name="kw_hunt_memprocfs" />
   </collection> 
   <view name="autorunsc" />
   <view name="hayabusa" />

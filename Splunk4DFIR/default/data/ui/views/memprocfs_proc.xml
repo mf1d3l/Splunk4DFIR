@@ -1,0 +1,195 @@
+<form version="1.1" theme="dark">
+  <label>MemProcFS - Process Drilldown</label>
+  <search id="base">
+    <query>`memprocfs` class=GEN type=process $text_filter$
+| rex field=desc2 "user\:\[(?&lt;user&gt;[^\]]+)\]"
+| rex field=desc2 "cmd\:\[(?&lt;cmd&gt;[^\]]+)\]"
+| fillnull value=NULL desc desc2 proc pid 
+| fields _time  type class desc desc2 proc pid user cmd</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <search id="filtered_base" base="base">
+    <query>
+| search proc IN ( $selected_proc$ ) user IN ( $selected_user$ ) pid IN ( $selected_pid$ )
+| table  proc pid user cmd</query>
+  </search>
+  <search id="base_timeline">
+    <query> `memprocfs` class=TL   | join left=L right=R where L.pid = R.pid [ | search `memprocfs` class=GEN type=process | rex field=desc2 "user\:\[(?&lt;user&gt;[^\]]+)\]"
+]
+| rename "R.proc" as proc
+| rename "R.pid" as pid
+| rename "R.user" as user
+| rename "L.type" as type
+| rename "L.action" as action
+| rename "L.desc" as desc
+| table _time pid proc type action desc user
+| search pid IN ( $selected_pid$ ) proc IN ( $selected_proc$ ) user IN ( $selected_user$ )
+| table _time pid proc user type action desc</query>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="selected_proc" searchWhenChanged="true">
+      <label>Select Process</label>
+      <search base="base">
+        <query>| stats count by proc | dedup proc</query>
+      </search>
+      <fieldForLabel>proc</fieldForLabel>
+      <fieldForValue>proc</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_pid" searchWhenChanged="true">
+      <label>Select PID</label>
+      <search base="base">
+        <query>| stats count by pid | dedup pid</query>
+      </search>
+      <fieldForLabel>pid</fieldForLabel>
+      <fieldForValue>pid</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_user" searchWhenChanged="true">
+      <label>Select User</label>
+      <search base="base">
+        <query>| stats count by user| dedup user</query>
+      </search>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>User Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>| stats count by user</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="selected_user">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Process Name Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by proc</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_proc">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>PID Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by pid</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_pid">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Selected Process Info</title>
+      <table>
+        <search base="filtered_base">
+          <query/>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Process to dest socket (IPv4 only)</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>`memprocfs` class=TL type=NET TCPv4 ESTABLISHED pid IN ( "*" )
+| rex field=desc "ESTABLISHED\s+(?&lt;src_ip&gt;\S+)\:(?&lt;src_port&gt;\d+)\s+(?&lt;dest_ip&gt;\S+):(?&lt;dest_port&gt;\d+)"
+| eval src = src_ip.":".src_port
+| eval dest = dest_ip.":".dest_port
+| join left=L right=R where L.pid = R.pid [ | search `memprocfs` class=GEN type=process | rex field=desc2 "user\:\[(?&lt;user&gt;[^\]]+)\]" ]
+| rename "L.*" as *
+| rename "R.*" as *
+| table _time src_ip src_port dest_ip dest_port src dest pid proc user
+| search proc IN ( $selected_proc$ ) user IN ( $selected_user$ ) pid IN ( $selected_pid$ ) 
+| eval src_proc = proc.":".pid
+| stats count by src_proc dest</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+        <option name="sankey_diagram_app.sankey_diagram.colorMode">categorical</option>
+        <option name="sankey_diagram_app.sankey_diagram.maxColor">#3fc77a</option>
+        <option name="sankey_diagram_app.sankey_diagram.minColor">#d93f3c</option>
+        <option name="sankey_diagram_app.sankey_diagram.numOfBins">6</option>
+        <option name="sankey_diagram_app.sankey_diagram.showBackwards">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.showLabels">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showLegend">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showSelf">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.showTooltip">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.styleBackwards">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.useColors">true</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timeline</title>
+      <chart>
+        <search base="base_timeline">
+          <query>| timechart count by type </query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timeline - Details</title>
+      <table>
+        <search base="base_timeline">
+          <query/>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>

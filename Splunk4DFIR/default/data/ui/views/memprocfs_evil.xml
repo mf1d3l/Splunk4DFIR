@@ -1,0 +1,134 @@
+<form version="1.1" theme="dark">
+  <label>MemProcFS - Evil Findings Overview</label>
+  <search id="base">
+    <query>`memprocfs` type=evil  $text_filter$ | fillnull value=NULL desc desc2 proc pid 
+| fields _time  type class desc desc2 proc pid</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <search id="filtered_base" base="base">
+    <query>
+| search proc IN ( $selected_proc$ ) desc IN ( $selected_type$ ) pid IN ( $selected_pid$ )
+| table  _time  type class desc desc2 proc pid</query>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="selected_proc" searchWhenChanged="true">
+      <label>Select Process</label>
+      <search base="base">
+        <query>| stats count by proc | dedup proc</query>
+      </search>
+      <fieldForLabel>proc</fieldForLabel>
+      <fieldForValue>proc</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_pid" searchWhenChanged="true">
+      <label>Select PID</label>
+      <search base="base">
+        <query>| stats count by pid | dedup pid</query>
+      </search>
+      <fieldForLabel>pid</fieldForLabel>
+      <fieldForValue>pid</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_type" searchWhenChanged="true">
+      <label>Select Finding Type</label>
+      <search base="base">
+        <query>| stats count by desc| dedup desc</query>
+      </search>
+      <fieldForLabel>desc</fieldForLabel>
+      <fieldForValue>desc</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Finding Type Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by desc</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_type">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Process Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by proc</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_proc">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>PID Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by pid</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_pid">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>All Findings</title>
+      <table>
+        <title>Click on proc or pid to drilldown</title>
+        <search base="filtered_base">
+          <query/>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <condition field="proc">
+            <link target="_blank">
+              <![CDATA[/app/Splunk4DFIR/memprocfs_proc?form.timepicker.earliest=-24h%40h&form.timepicker.latest=now&form.text_filter=*&form.selected_proc=$row.proc$&form.selected_pid=*&form.selected_user=*]]>
+            </link>
+          </condition>
+          <condition field="pid">
+            <link target="_blank">
+              <![CDATA[/app/Splunk4DFIR/memprocfs_proc?form.timepicker.earliest=-24h%40h&form.timepicker.latest=now&form.text_filter=*&form.selected_proc=*&form.selected_pid=$row.pid$&form.selected_user=*]]>
+            </link>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>
