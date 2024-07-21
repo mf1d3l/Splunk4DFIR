@@ -14,6 +14,7 @@ This is a simple quality of life improvement project built upon the amazing work
 - https://github.com/SigmaHQ
 - https://github.com/Yamato-Security/hayabusa
 - https://github.com/mthcht/ThreatHunting-Keywords
+- https://github.com/mthcht/awesome-lists
 - https://github.com/magicsword-io/LOLDrivers
 - https://github.com/ufrisk/MemProcFS
 
