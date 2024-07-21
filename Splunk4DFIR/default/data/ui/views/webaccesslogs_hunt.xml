@@ -1,0 +1,101 @@
+<form version="1.1" theme="dark">
+  <label>Web Access Logs Hunt</label>
+  <search id="base">
+    <query>index=syslog sourcetype=access_combined $text_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) 
+    | fields clientip useragent method uri_path uri_query uri status bytes</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="clientip" searchWhenChanged="true">
+      <label>Select Client IP</label>
+      <search>
+        <query>index=syslog sourcetype=access_combined 
+      |fields clientip | dedup clientip</query>
+      </search>
+      <fieldForLabel>clientip</fieldForLabel>
+      <fieldForValue>clientip</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="useragent" searchWhenChanged="true">
+      <label>Select User-Agent</label>
+      <search>
+        <query>index=syslog sourcetype=access_combined 
+      |fields useragent | dedup useragent</query>
+      </search>
+      <fieldForLabel>useragent</fieldForLabel>
+      <fieldForValue>useragent</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Connections Timeline Source IP</title>
+      <chart>
+        <search base="base">
+          <query>| timechart count by clientip</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="clientip">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Connections Timeline User-Agent</title>
+      <chart>
+        <search base="base">
+          <query>| timechart count by useragent</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="useragent">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Details</title>
+      <table>
+        <search>
+          <query>index=syslog sourcetype=access_combined $text_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) 
+    | table clientip useragent method uri_path uri_query uri status bytes
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="alert_token">$row.alert.signature$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>

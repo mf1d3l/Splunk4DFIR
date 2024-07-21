@@ -34,6 +34,7 @@
   <view name="autorunsc" />
   <view name="hayabusa" />
   <view name="loldrivers" />
+  <view name="webaccesslogs_hunt" />
   <collection label="Default"> 
   <view name="search" default="yes"/>
   <view name="reports" />
