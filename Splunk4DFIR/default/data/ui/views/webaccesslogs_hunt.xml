@@ -1,7 +1,7 @@
 <form version="1.1" theme="dark">
   <label>Web Access Logs Hunt</label>
   <search id="base">
-    <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) 
+    <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ )
     | fields clientip useragent method uri_path uri_query uri status bytes</query>
     <earliest>$timepicker.earliest$</earliest>
     <latest>$timepicker.latest$</latest>
@@ -20,6 +20,20 @@
       <prefix/>
       <suffix/>
     </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source log file</label>
+      <search>
+        <query>index=syslog sourcetype=access_combined 
+      |fields source | dedup source </query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
     <input type="dropdown" token="ua_filter" searchWhenChanged="true">
       <label>Select suspicious UA Only</label>
       <choice value="[ |inputlookup ua_blacklist.csv | fields useragent ]">YES</choice>
@@ -29,7 +43,7 @@
     <input type="multiselect" token="clientip" searchWhenChanged="true">
       <label>Select Client IP</label>
       <search>
-        <query>index=syslog sourcetype=access_combined 
+        <query>index=syslog sourcetype=access_combined source IN ( $selected_source$ )
       |fields clientip | dedup clientip</query>
       </search>
       <fieldForLabel>clientip</fieldForLabel>
@@ -43,7 +57,7 @@
     <input type="multiselect" token="useragent" searchWhenChanged="true">
       <label>Select User-Agent</label>
       <search>
-        <query>index=syslog sourcetype=access_combined $ua_filter$
+        <query>index=syslog sourcetype=access_combined $ua_filter$ source IN ( $selected_source$ )
       |fields useragent | dedup useragent</query>
       </search>
       <fieldForLabel>useragent</fieldForLabel>
@@ -90,7 +104,7 @@
       <title>Client IP To User-Agent</title>
       <viz type="sankey_diagram_app.sankey_diagram">
         <search>
-          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) 
+          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ )
     | stats count by clientip useragent
           </query>
           <earliest>$timepicker.earliest$</earliest>
@@ -107,7 +121,7 @@
       <title>Details</title>
       <table>
         <search>
-          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) 
+          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ )
     | table clientip useragent method uri_path uri_query uri status bytes
           </query>
           <earliest>$timepicker.earliest$</earliest>
