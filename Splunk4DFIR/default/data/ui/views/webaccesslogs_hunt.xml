@@ -36,7 +36,7 @@
     </input>
     <input type="dropdown" token="ua_filter" searchWhenChanged="true">
       <label>Select suspicious UA Only</label>
-      <choice value="[ |inputlookup ua_blacklist.csv | fields useragent ]">YES</choice>
+      <choice value="[ |inputlookup suspicious_http_user_agents_list | fields http_user_agent | rename http_user_agent as useragent ]">YES</choice>
       <choice value="">NO</choice>
       <default></default>
     </input>

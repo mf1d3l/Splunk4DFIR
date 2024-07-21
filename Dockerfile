@@ -7,4 +7,5 @@ RUN sudo chown -R splunk:splunk /opt/splunk/etc/apps/Splunk4DFIR/bin/evtx2splunk
 RUN sudo pip3 install -r /opt/splunk/etc/apps/Splunk4DFIR/bin/evtx2splunk/requirements.txt
 RUN sudo curl https://raw.githubusercontent.com/mthcht/ThreatHunting-Keywords/main/threathunting-keywords.csv -o /opt/splunk/etc/apps/Splunk4DFIR/lookups/threathunting-keywords.csv
 RUN sudo curl https://raw.githubusercontent.com/magicsword-io/LOLDrivers/main/loldrivers.io/content/api/drivers.csv -o /opt/splunk/etc/apps/Splunk4DFIR/lookups/loldrivers.csv
+RUN sudo curl https://raw.githubusercontent.com/mthcht/awesome-lists/main/Lists/suspicious_http_user_agents_list.csv -o /opt/splunk/etc/apps/Splunk4DFIR/lookups/suspicious_http_user_agents_list.csv
 RUN sudo chown -R splunk:splunk /opt/splunk/etc/apps/Splunk4DFIR/lookups/
