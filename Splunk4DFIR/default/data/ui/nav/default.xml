@@ -29,10 +29,12 @@
     <view name="kw_hunt_supertimeline" />
     <view name="kw_hunt_artifacts" />
     <view name="kw_hunt_memprocfs" />
+    <view name="kw_hunt_syslog" />
   </collection> 
   <view name="autorunsc" />
   <view name="hayabusa" />
   <view name="loldrivers" />
+  <view name="webaccesslogs_hunt" />
   <collection label="Default"> 
   <view name="search" default="yes"/>
   <view name="reports" />

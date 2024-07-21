@@ -14,6 +14,7 @@ This is a simple quality of life improvement project built upon the amazing work
 - https://github.com/SigmaHQ
 - https://github.com/Yamato-Security/hayabusa
 - https://github.com/mthcht/ThreatHunting-Keywords
+- https://github.com/mthcht/awesome-lists
 - https://github.com/magicsword-io/LOLDrivers
 - https://github.com/ufrisk/MemProcFS
 
@@ -58,6 +59,7 @@ If you dont see data being ingested, check the permissions of your artifacts fil
 - `artifacts/suricata/`: drop there your eve.json suricata file
 - `artifacts/supertimelines/`: drop there your plaso l2tcsv outputs
 - `artifacts/memprocfs/`: drop there your MemProcFS forensic json output files
+- `artifacts/syslog/`: drop there linux syslog logs
 
 additionnaly some [macros](Splunk4DFIR/default/macros.conf) are configurable to point to specific tools output sourcetypes such as:
 
@@ -96,7 +98,7 @@ Searches will only match for  data ingested recently not to flood the notables i
 
 ## Sigma Rules support
 
-you can import sigma rules as savedsearches using the command below
+You can import sigma rules as savedsearches using the command below as an example for importing windows rules. Pysigma pipeline config files are also available for other rulesets. 
 
 ```
 sudo docker build -t sigma-cli sigma/
