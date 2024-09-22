@@ -1,0 +1,212 @@
+<form version="1.1" theme="dark">
+  <label>AWS Cloudtrail Overview</label>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="dropdown" token="ua_filter" searchWhenChanged="true">
+      <label>Select suspicious UA Only</label>
+      <choice value="[ |inputlookup suspicious_http_user_agents_list.csv | fields http_user_agent | rename http_user_agent as userAgent ]">YES</choice>
+      <choice value="">NO</choice>
+      <default></default>
+    </input>
+    <input type="multiselect" token="clientip" searchWhenChanged="true">
+      <label>Select Client IP</label>
+      <search>
+        <query>index=cloudtrail source IN ( $selected_source$ )
+      |fields sourceIPAddress | dedup sourceIPAddress</query>
+      </search>
+      <fieldForLabel>sourceIPAddress</fieldForLabel>
+      <fieldForValue>sourceIPAddress</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="useragent" searchWhenChanged="true">
+      <label>Select User-Agent</label>
+      <search>
+        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+      |fields userAgent | dedup userAgent</query>
+      </search>
+      <fieldForLabel>userAgent</fieldForLabel>
+      <fieldForValue>userAgent</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="eventCategory" searchWhenChanged="true">
+      <label>Select Event Category</label>
+      <search>
+        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+      |fields eventCategory | dedup eventCategory</query>
+      </search>
+      <fieldForLabel>eventCategory</fieldForLabel>
+      <fieldForValue>eventCategory</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="eventType" searchWhenChanged="true">
+      <label>Select Event Type</label>
+      <search>
+        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+      |fields eventType | dedup eventType</query>
+      </search>
+      <fieldForLabel>eventType</fieldForLabel>
+      <fieldForValue>eventType</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="eventName" searchWhenChanged="true">
+      <label>Select Event Name</label>
+      <search>
+        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+      |fields eventName | dedup eventName</query>
+      </search>
+      <fieldForLabel>eventName</fieldForLabel>
+      <fieldForValue>eventName</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="eventSource" searchWhenChanged="true">
+      <label>Select Event Source</label>
+      <search>
+        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+      |fields eventSource | dedup eventSource</query>
+      </search>
+      <fieldForLabel>eventSource</fieldForLabel>
+      <fieldForValue>eventSource</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="awsRegion" searchWhenChanged="true">
+      <label>Select AWS Region</label>
+      <search>
+        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+      |fields awsRegion | dedup awsRegion</query>
+      </search>
+      <fieldForLabel>awsRegion</fieldForLabel>
+      <fieldForValue>awsRegion</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Client IP GeoIP HeatMap</title>
+      <map>
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ ) eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) eventCategory IN ( $eventCategory$ ) awsRegion IN ( $awsRegion$ )
+     | fields sourceIPAddress userAgent | iplocation sourceIPAddress
+| geostats latfield=lat longfield=lon count by sourceIPAddress</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+        <option name="refresh.display">progressbar</option>
+      </map>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Connections Timeline Source IP</title>
+      <chart>
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
+          | timechart count by sourceIPAddress</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="clientip">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Connections Timeline User-Agent</title>
+      <chart>
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
+          | timechart count by userAgent</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="useragent">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Client IP To User-Agent</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
+    | stats count by sourceIPAddress userAgent</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Details</title>
+      <table>
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ ) eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
+          | table _time sourceIPAddress userAgent awsRegion eventSource eventType eventName eventID</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="alert_token">$row.alert.signature$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>

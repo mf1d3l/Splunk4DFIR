@@ -31,6 +31,9 @@
     <view name="kw_hunt_memprocfs" />
     <view name="kw_hunt_syslog" />
   </collection> 
+  <collection label="Cloud">
+    <view name="aws_cloudtrail_overview" />
+  </collection> 
   <view name="autorunsc" />
   <view name="hayabusa" />
   <view name="loldrivers" />
