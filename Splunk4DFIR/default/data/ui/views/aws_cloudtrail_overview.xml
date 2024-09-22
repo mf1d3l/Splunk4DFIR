@@ -23,7 +23,7 @@
     <input type="multiselect" token="clientip" searchWhenChanged="true">
       <label>Select Client IP</label>
       <search>
-        <query>index=cloudtrail source IN ( $selected_source$ )
+        <query>index=cloudtrail 
       |fields sourceIPAddress | dedup sourceIPAddress</query>
       </search>
       <fieldForLabel>sourceIPAddress</fieldForLabel>
@@ -37,7 +37,7 @@
     <input type="multiselect" token="useragent" searchWhenChanged="true">
       <label>Select User-Agent</label>
       <search>
-        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+        <query>index=cloudtrail $ua_filter$ 
       |fields userAgent | dedup userAgent</query>
       </search>
       <fieldForLabel>userAgent</fieldForLabel>
@@ -51,7 +51,7 @@
     <input type="multiselect" token="eventCategory" searchWhenChanged="true">
       <label>Select Event Category</label>
       <search>
-        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+        <query>index=cloudtrail $ua_filter$ 
       |fields eventCategory | dedup eventCategory</query>
       </search>
       <fieldForLabel>eventCategory</fieldForLabel>
@@ -65,7 +65,7 @@
     <input type="multiselect" token="eventType" searchWhenChanged="true">
       <label>Select Event Type</label>
       <search>
-        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+        <query>index=cloudtrail $ua_filter$ 
       |fields eventType | dedup eventType</query>
       </search>
       <fieldForLabel>eventType</fieldForLabel>
@@ -79,7 +79,7 @@
     <input type="multiselect" token="eventName" searchWhenChanged="true">
       <label>Select Event Name</label>
       <search>
-        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+        <query>index=cloudtrail $ua_filter$ 
       |fields eventName | dedup eventName</query>
       </search>
       <fieldForLabel>eventName</fieldForLabel>
@@ -93,7 +93,7 @@
     <input type="multiselect" token="eventSource" searchWhenChanged="true">
       <label>Select Event Source</label>
       <search>
-        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+        <query>index=cloudtrail $ua_filter$ 
       |fields eventSource | dedup eventSource</query>
       </search>
       <fieldForLabel>eventSource</fieldForLabel>
@@ -107,7 +107,7 @@
     <input type="multiselect" token="awsRegion" searchWhenChanged="true">
       <label>Select AWS Region</label>
       <search>
-        <query>index=cloudtrail $ua_filter$ source IN ( $selected_source$ )
+        <query>index=cloudtrail $ua_filter$ 
       |fields awsRegion | dedup awsRegion</query>
       </search>
       <fieldForLabel>awsRegion</fieldForLabel>
