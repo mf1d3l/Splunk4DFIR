@@ -23,7 +23,7 @@
     <input type="multiselect" token="clientip" searchWhenChanged="true">
       <label>Select Client IP</label>
       <search>
-        <query>index=cloudtrail 
+        <query>index=cloudtrail NOT sourceIPAddress="*.com"
       |fields sourceIPAddress | dedup sourceIPAddress</query>
       </search>
       <fieldForLabel>sourceIPAddress</fieldForLabel>
@@ -38,10 +38,25 @@
       <label>Select User-Agent</label>
       <search>
         <query>index=cloudtrail $ua_filter$ 
-      |fields userAgent | dedup userAgent</query>
+      |fields userAgent | dedup userAgent | sort userAgent</query>
       </search>
       <fieldForLabel>userAgent</fieldForLabel>
       <fieldForValue>userAgent</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="username" searchWhenChanged="true">
+      <label>Select User Name</label>
+      <search>
+        <query>index=cloudtrail  
+      | fillnull value="N/A" userIdentity.userName
+      |fields userIdentity.userName | dedup userIdentity.userName | sort userIdentity.userName</query>
+      </search>
+      <fieldForLabel>userIdentity.userName</fieldForLabel>
+      <fieldForValue>userIdentity.userName</fieldForValue>
       <delimiter> , </delimiter>
       <default>*</default>
       <valuePrefix>"</valuePrefix>
@@ -52,7 +67,7 @@
       <label>Select Event Category</label>
       <search>
         <query>index=cloudtrail $ua_filter$ 
-      |fields eventCategory | dedup eventCategory</query>
+      |fields eventCategory | dedup eventCategory | sort eventCategory</query>
       </search>
       <fieldForLabel>eventCategory</fieldForLabel>
       <fieldForValue>eventCategory</fieldForValue>
@@ -66,7 +81,7 @@
       <label>Select Event Type</label>
       <search>
         <query>index=cloudtrail $ua_filter$ 
-      |fields eventType | dedup eventType</query>
+      |fields eventType | dedup eventType | sort eventType</query>
       </search>
       <fieldForLabel>eventType</fieldForLabel>
       <fieldForValue>eventType</fieldForValue>
@@ -80,7 +95,7 @@
       <label>Select Event Name</label>
       <search>
         <query>index=cloudtrail $ua_filter$ 
-      |fields eventName | dedup eventName</query>
+      |fields eventName | dedup eventName | sort eventName </query>
       </search>
       <fieldForLabel>eventName</fieldForLabel>
       <fieldForValue>eventName</fieldForValue>
@@ -94,7 +109,7 @@
       <label>Select Event Source</label>
       <search>
         <query>index=cloudtrail $ua_filter$ 
-      |fields eventSource | dedup eventSource</query>
+      |fields eventSource | dedup eventSource | sort eventSource</query>
       </search>
       <fieldForLabel>eventSource</fieldForLabel>
       <fieldForValue>eventSource</fieldForValue>
@@ -108,7 +123,7 @@
       <label>Select AWS Region</label>
       <search>
         <query>index=cloudtrail $ua_filter$ 
-      |fields awsRegion | dedup awsRegion</query>
+      |fields awsRegion | dedup awsRegion | sort awsRegion </query>
       </search>
       <fieldForLabel>awsRegion</fieldForLabel>
       <fieldForValue>awsRegion</fieldForValue>
@@ -124,9 +139,11 @@
       <title>Client IP GeoIP HeatMap</title>
       <map>
         <search>
-          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ ) eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) eventCategory IN ( $eventCategory$ ) awsRegion IN ( $awsRegion$ )
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ ) eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) eventCategory IN ( $eventCategory$ ) awsRegion IN ( $awsRegion$ ) NOT sourceIPAddress="*.com"
+     | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
      | fields sourceIPAddress userAgent | iplocation sourceIPAddress
-| geostats latfield=lat longfield=lon count by sourceIPAddress</query>
+     | geostats latfield=lat longfield=lon count by sourceIPAddress
+     </query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -138,10 +155,97 @@
   </row>
   <row>
     <panel>
-      <title>Connections Timeline Source IP</title>
+      <title>AWS Region Distribution</title>
       <chart>
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | stats count by awsRegion</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="awsRegion">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Event Source Distribution</title>
+      <chart>
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | stats count by eventSource </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="eventSource">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Event Type Distribution</title>
+      <chart>
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | stats count by eventType</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="eventType">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Event Name Distribution</title>
+      <chart>
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | stats count by eventName</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="eventName">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timeline Source IP</title>
+      <chart>
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
           | timechart count by sourceIPAddress</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -152,15 +256,16 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
         <option name="refresh.display">progressbar</option>
         <drilldown>
-          <set token="clientip">"$click.name2$"</set>
+          <set token="clientip">$click.name2$</set>
         </drilldown>
       </chart>
     </panel>
     <panel>
-      <title>Connections Timeline User-Agent</title>
+      <title>Timeline User-Agent</title>
       <chart>
         <search>
-          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
           | timechart count by userAgent</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -175,14 +280,61 @@
         </drilldown>
       </chart>
     </panel>
+    <panel>
+      <title>Timeline User Name</title>
+      <chart>
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | timechart count by userIdentity.userName</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="username">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
   </row>
   <row>
     <panel>
       <title>Client IP To User-Agent</title>
       <viz type="sankey_diagram_app.sankey_diagram">
         <search>
-          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
     | stats count by sourceIPAddress userAgent</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>Client IP To AWS Region</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+    | stats count by sourceIPAddress awsRegion</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>Client IP To AWS service</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+    | stats count by sourceIPAddress eventSource</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -194,18 +346,37 @@
     <panel>
       <title>Details</title>
       <table>
+        <title>click on an eventID to drilldown into the event</title>
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ ) eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
-          | table _time sourceIPAddress userAgent awsRegion eventSource eventType eventName eventID</query>
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | table _time sourceIPAddress userAgent userIdentity.userName awsRegion eventSource eventType eventName eventID</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
         <option name="count">10</option>
         <option name="drilldown">cell</option>
-        <option name="refresh.display">progressbar</option>
         <drilldown>
-          <set token="alert_token">$row.alert.signature$</set>
+          <condition field="eventID">
+            <set token="show_event">"$row.eventID$"</set>
+          </condition>
         </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Event Drilldown</title>
+      <table>
+        <title></title>
+        <search>
+          <query>index=cloudtrail $show_event$
+          | table _time _raw</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
       </table>
     </panel>
   </row>
