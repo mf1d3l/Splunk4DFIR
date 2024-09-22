@@ -119,6 +119,21 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
+    <input type="multiselect" token="errorCode" searchWhenChanged="true">
+      <label>Select ErrorCode</label>
+      <search>
+        <query>index=cloudtrail $ua_filter$ 
+      | fillnull value="Success" errorCode
+      | fields errorCode | dedup errorCode | sort errorCode</query>
+      </search>
+      <fieldForLabel>errorCode</fieldForLabel>
+      <fieldForValue>errorCode</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
     <input type="multiselect" token="awsRegion" searchWhenChanged="true">
       <label>Select AWS Region</label>
       <search>
@@ -141,6 +156,7 @@
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ ) eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) eventCategory IN ( $eventCategory$ ) awsRegion IN ( $awsRegion$ ) NOT sourceIPAddress="*.com"
      | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+     | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
      | fields sourceIPAddress userAgent | iplocation sourceIPAddress
      | geostats latfield=lat longfield=lon count by sourceIPAddress
      </query>
@@ -160,6 +176,7 @@
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
           | stats count by awsRegion</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -181,6 +198,7 @@
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
           | stats count by eventSource </query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -202,6 +220,7 @@
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
           | stats count by eventType</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -223,6 +242,7 @@
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
           | stats count by eventName</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -246,6 +266,7 @@
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
           | timechart count by sourceIPAddress</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -266,6 +287,7 @@
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
           | timechart count by userAgent</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -280,12 +302,15 @@
         </drilldown>
       </chart>
     </panel>
+  </row>
+  <row>
     <panel>
       <title>Timeline User Name</title>
       <chart>
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
           | timechart count by userIdentity.userName</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -300,6 +325,27 @@
         </drilldown>
       </chart>
     </panel>
+    <panel>
+      <title>Timeline Error Core</title>
+      <chart>
+        <search>
+          <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
+          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
+          | timechart count by errorCode</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="errorCode">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
   </row>
   <row>
     <panel>
@@ -308,33 +354,40 @@
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-    | stats count by sourceIPAddress userAgent</query>
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
+          | stats count by sourceIPAddress userAgent</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
         <option name="refresh.display">progressbar</option>
       </viz>
     </panel>
+  </row>
+  <row>
     <panel>
       <title>Client IP To AWS Region</title>
       <viz type="sankey_diagram_app.sankey_diagram">
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-    | stats count by sourceIPAddress awsRegion</query>
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
+          | stats count by sourceIPAddress awsRegion</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
         <option name="refresh.display">progressbar</option>
       </viz>
     </panel>
+  </row>
+  <row>
     <panel>
       <title>Client IP To AWS service</title>
       <viz type="sankey_diagram_app.sankey_diagram">
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com"
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-    | stats count by sourceIPAddress eventSource</query>
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
+          | stats count by sourceIPAddress eventSource</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -350,7 +403,8 @@
         <search>
           <query>index=cloudtrail $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ ) eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ )
           | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | table _time sourceIPAddress userAgent userIdentity.userName awsRegion eventSource eventType eventName eventID</query>
+          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
+          | table _time sourceIPAddress userAgent userIdentity.userName awsRegion eventSource eventType eventName errorCode eventID</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
