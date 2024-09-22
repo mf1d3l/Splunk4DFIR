@@ -1,11 +1,5 @@
 <form version="1.1" theme="dark">
   <label>Web Access Logs Hunt</label>
-  <search id="base">
-    <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ $uri_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ ) status IN ( $status$ ) 
-    | fields clientip useragent method uri_path uri_query uri status bytes</query>
-    <earliest>$timepicker.earliest$</earliest>
-    <latest>$timepicker.latest$</latest>
-  </search>
   <fieldset submitButton="true">
     <input type="time" token="timepicker">
       <label>Time span</label>
@@ -93,12 +87,16 @@
     <panel>
       <title>Client IP GeoIP HeatMap</title>
       <map>
-        <search base="base">
-          <query>| iplocation clientip
+        <search>
+          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ $uri_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ ) status IN ( $status$ ) 
+    | fields clientip useragent method uri_path uri_query uri status bytes | iplocation clientip
 | geostats latfield=lat longfield=lon count by clientip</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
         </search>
         <option name="drilldown">none</option>
         <option name="mapping.type">marker</option>
+        <option name="refresh.display">progressbar</option>
       </map>
     </panel>
   </row>
@@ -106,12 +104,16 @@
     <panel>
       <title>Connections Timeline Source IP</title>
       <chart>
-        <search base="base">
-          <query>| timechart count by clientip</query>
+        <search>
+          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ $uri_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ ) status IN ( $status$ ) 
+    | fields clientip useragent method uri_path uri_query uri status bytes | timechart count by clientip</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.showDataLabels">none</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
         <drilldown>
           <set token="clientip">"$click.name2$"</set>
         </drilldown>
@@ -120,12 +122,16 @@
     <panel>
       <title>Connections Timeline User-Agent</title>
       <chart>
-        <search base="base">
-          <query>| timechart count by useragent</query>
+        <search>
+          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ $uri_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ ) status IN ( $status$ ) 
+    | fields clientip useragent method uri_path uri_query uri status bytes | timechart count by useragent</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.showDataLabels">none</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
         <drilldown>
           <set token="useragent">"$click.name2$"</set>
         </drilldown>
@@ -134,12 +140,16 @@
     <panel>
       <title>Connections Timeline HTTP Status Code</title>
       <chart>
-        <search base="base">
-          <query>| timechart count by status</query>
+        <search>
+          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ $uri_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ ) status IN ( $status$ ) 
+    | fields clientip useragent method uri_path uri_query uri status bytes | timechart count by status</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.chart.showDataLabels">none</option>
         <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
         <drilldown>
           <set token="status">"$click.name2$"</set>
         </drilldown>
