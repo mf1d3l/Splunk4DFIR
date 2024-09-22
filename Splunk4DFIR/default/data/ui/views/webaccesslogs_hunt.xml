@@ -1,7 +1,7 @@
 <form version="1.1" theme="dark">
   <label>Web Access Logs Hunt</label>
   <search id="base">
-    <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ )
+    <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ ) status IN ( $status$ ) 
     | fields clientip useragent method uri_path uri_query uri status bytes</query>
     <earliest>$timepicker.earliest$</earliest>
     <latest>$timepicker.latest$</latest>
@@ -68,7 +68,34 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
+    <input type="multiselect" token="status" searchWhenChanged="true">
+      <label>Select HTTP Status Code</label>
+      <search>
+        <query>index=syslog sourcetype=access_combined $ua_filter$ source IN ( $selected_source$ )
+      |fields status | dedup status</query>
+      </search>
+      <fieldForLabel>status</fieldForLabel>
+      <fieldForValue>status</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
   </fieldset>
+  <row>
+    <panel>
+      <title>Client IP GeoIP HeatMap</title>
+      <map>
+        <search base="base">
+          <query>| iplocation clientip
+| geostats latfield=lat longfield=lon count by clientip</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+      </map>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>Connections Timeline Source IP</title>
@@ -98,21 +125,32 @@
         </drilldown>
       </chart>
     </panel>
+    <panel>
+      <title>Connections Timeline HTTP Status Code</title>
+      <chart>
+        <search base="base">
+          <query>| timechart count by status</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <drilldown>
+          <set token="status">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
   </row>
   <row>
     <panel>
       <title>Client IP To User-Agent</title>
       <viz type="sankey_diagram_app.sankey_diagram">
         <search>
-          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ )
+          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ ) status IN ( $status$ ) 
     | stats count by clientip useragent
           </query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
-        <drilldown>
-          <set token="alert_token">$row.alert.signature$</set>
-        </drilldown>
       </viz>
     </panel>
   </row>
@@ -121,8 +159,8 @@
       <title>Details</title>
       <table>
         <search>
-          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ )
-    | table clientip useragent method uri_path uri_query uri status bytes
+          <query>index=syslog sourcetype=access_combined $text_filter$ $ua_filter$ clientip IN ( $clientip$ ) useragent IN ( $useragent$ ) source IN ( $selected_source$ ) status IN ( $status$ ) 
+    | table _time clientip useragent method uri_path uri_query uri status bytes
           </query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
