@@ -109,6 +109,9 @@ When dealing with evtx files, the evtx to json import + sigma rule to splunk sch
 
 If you need to triage evtx accross a very large fleet of endpoint I rather recommend to start processing with [hayabusa](https://github.com/Yamato-Security/hayabusa) and import the hayabusa outputs into splunk. The Splunk4DFIR app has a dashboard to visualise hayabusa outputs.
 
+Some rulesets can be found already compiled [here](sigma/compiled/)
+
+
 ## Pcap to Zeek
 
 Drop you pcap file under `artifacts/pcap/`, then build and run the zeek container to generate zeek json output files. 
