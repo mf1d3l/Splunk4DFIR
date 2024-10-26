@@ -213,6 +213,7 @@
         <search>
           <query>`ssh` vendor_action=* src_ip=* $text_filter$  src_ip IN ( $src_ip$ ) user IN ( $user$ ) host IN ( $host$ ) vendor_action IN ( $vendor_action$ ) source IN ( $selected_source$ ) 
     | table _time host src_ip user vendor_action 
+    | iplocation src_ip
           </query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
