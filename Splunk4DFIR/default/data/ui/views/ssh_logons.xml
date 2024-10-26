@@ -17,7 +17,7 @@
     <input type="multiselect" token="selected_source" searchWhenChanged="true">
       <label>Select source log file</label>
       <search>
-        <query>index=syslog sshd process=sshd
+        <query>`ssh`
       |fields source | dedup source </query>
       </search>
       <fieldForLabel>source</fieldForLabel>
@@ -31,7 +31,7 @@
     <input type="multiselect" token="src_ip" searchWhenChanged="true">
       <label>Source IP</label>
       <search>
-        <query>index=syslog sshd process=sshd source IN ( $selected_source$ )
+        <query>`ssh` source IN ( $selected_source$ )
       |fields src_ip | dedup src_ip</query>
       </search>
       <fieldForLabel>src_ip</fieldForLabel>
@@ -48,7 +48,7 @@
       <title>Source IP GeoIP HeatMap</title>
       <map>
         <search>
-          <query>index=syslog sshd process=sshd $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
+          <query>`ssh` $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
     | fields src_ip user | iplocation src_ip
 | geostats latfield=lat longfield=lon count by user</query>
           <earliest>$timepicker.earliest$</earliest>
@@ -65,7 +65,7 @@
       <title>Connections Timeline Source IP</title>
       <chart>
         <search>
-          <query>index=syslog sshd process=sshd $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
+          <query>`ssh` $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
     | fields src_ip user| iplocation src_ip | timechart count by src_ip</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -85,7 +85,7 @@
       <title>Details</title>
       <table>
         <search>
-          <query>index=syslog sshd process=sshd $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
+          <query>`ssh` $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
     | table _time src_ip user
           </query>
           <earliest>$timepicker.earliest$</earliest>
