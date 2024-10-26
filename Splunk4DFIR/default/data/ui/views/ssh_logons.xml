@@ -17,7 +17,7 @@
     <input type="multiselect" token="selected_source" searchWhenChanged="true">
       <label>Select source log file</label>
       <search>
-        <query>`ssh`
+        <query>`ssh` vendor_action=* src_ip=*
       |fields source | dedup source </query>
       </search>
       <fieldForLabel>source</fieldForLabel>
@@ -31,11 +31,53 @@
     <input type="multiselect" token="src_ip" searchWhenChanged="true">
       <label>Source IP</label>
       <search>
-        <query>`ssh` source IN ( $selected_source$ )
+        <query>`ssh` vendor_action=* src_ip=* source IN ( $selected_source$ )
       |fields src_ip | dedup src_ip</query>
       </search>
       <fieldForLabel>src_ip</fieldForLabel>
       <fieldForValue>src_ip</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="user" searchWhenChanged="true">
+      <label>User</label>
+      <search>
+        <query>`ssh` vendor_action=* src_ip=* source IN ( $selected_source$ )
+      |fields user | dedup user</query>
+      </search>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="host" searchWhenChanged="true">
+      <label>Host</label>
+      <search>
+        <query>`ssh` vendor_action=* src_ip=* source IN ( $selected_source$ )
+      |fields host | dedup host</query>
+      </search>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="vendor_action" searchWhenChanged="true">
+      <label>Event Type</label>
+      <search>
+        <query>`ssh` vendor_action=* src_ip=* source IN ( $selected_source$ )
+      |fields vendor_action | dedup vendor_action</query>
+      </search>
+      <fieldForLabel>vendor_action</fieldForLabel>
+      <fieldForValue>vendor_action</fieldForValue>
       <delimiter> , </delimiter>
       <default>*</default>
       <valuePrefix>"</valuePrefix>
@@ -48,7 +90,7 @@
       <title>Source IP GeoIP HeatMap</title>
       <map>
         <search>
-          <query>`ssh` $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
+          <query>`ssh` vendor_action=* src_ip=* $text_filter$  src_ip IN ( $src_ip$ ) user IN ( $user$ )  host IN ( $host$ )  vendor_action IN ( $vendor_action$ ) source IN ( $selected_source$ ) 
     | fields src_ip user | iplocation src_ip
 | geostats latfield=lat longfield=lon count by user</query>
           <earliest>$timepicker.earliest$</earliest>
@@ -62,11 +104,11 @@
   </row>
   <row>
     <panel>
-      <title>Connections Timeline Source IP</title>
+      <title>Authentication events Timeline Source IP</title>
       <chart>
         <search>
-          <query>`ssh` $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
-    | fields src_ip user| iplocation src_ip | timechart count by src_ip</query>
+          <query>`ssh` vendor_action=* src_ip=* $text_filter$  src_ip IN ( $src_ip$ )  user IN ( $user$ ) host IN ( $host$ ) vendor_action IN ( $vendor_action$ ) source IN ( $selected_source$ ) 
+    | fields src_ip user host vendor_action | timechart count by src_ip</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -75,9 +117,93 @@
         <option name="charting.chart.stackMode">stacked</option>
         <option name="refresh.display">progressbar</option>
         <drilldown>
-          <set token="clientip">"$click.name2$"</set>
+          <set token="src_ip">"$click.name2$"</set>
         </drilldown>
       </chart>
+    </panel>
+    <panel>
+      <title>Authentication events Timeline User</title>
+      <chart>
+        <search>
+          <query>`ssh` vendor_action=* src_ip=* $text_filter$  src_ip IN ( $src_ip$ )  user IN ( $user$ ) host IN ( $host$ ) vendor_action IN ( $vendor_action$ ) source IN ( $selected_source$ ) 
+    | fields src_ip user host vendor_action | timechart count by user</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="user">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Authentication events Timeline Host</title>
+      <chart>
+        <search>
+          <query>`ssh` vendor_action=* src_ip=* $text_filter$  src_ip IN ( $src_ip$ )  user IN ( $user$ ) host IN ( $host$ ) vendor_action IN ( $vendor_action$ ) source IN ( $selected_source$ ) 
+    | fields src_ip user host vendor_action | timechart count by host</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="host">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Authentication events Timeline Event Type</title>
+      <chart>
+        <search>
+          <query>`ssh` vendor_action=* src_ip=* $text_filter$  src_ip IN ( $src_ip$ )  user IN ( $user$ ) host IN ( $host$ ) vendor_action IN ( $vendor_action$ ) source IN ( $selected_source$ ) 
+    | fields src_ip user host vendor_action | timechart count by vendor_action</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="vendor_action">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Source IP to User</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>`ssh` vendor_action=* src_ip=* $text_filter$  src_ip IN ( $src_ip$ )  user IN ( $user$ ) host IN ( $host$ ) vendor_action IN ( $vendor_action$ ) source IN ( $selected_source$ ) 
+    | fields src_ip user host vendor_action | stats count by src_ip user</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>Source IP to Host</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>`ssh` vendor_action=* src_ip=* $text_filter$  src_ip IN ( $src_ip$ )  user IN ( $user$ ) host IN ( $host$ ) vendor_action IN ( $vendor_action$ ) source IN ( $selected_source$ ) 
+    | fields src_ip user host vendor_action | stats count by src_ip host</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
+      </viz>
     </panel>
   </row>
   <row>
@@ -85,8 +211,8 @@
       <title>Details</title>
       <table>
         <search>
-          <query>`ssh` $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
-    | table _time src_ip user
+          <query>`ssh` vendor_action=* src_ip=* $text_filter$  src_ip IN ( $src_ip$ ) user IN ( $user$ ) host IN ( $host$ ) vendor_action IN ( $vendor_action$ ) source IN ( $selected_source$ ) 
+    | table _time host src_ip user vendor_action 
           </query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
