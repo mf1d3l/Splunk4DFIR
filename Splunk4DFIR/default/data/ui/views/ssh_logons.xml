@@ -1,0 +1,99 @@
+<form version="1.1" theme="dark">
+  <label>SSH Logons</label>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source log file</label>
+      <search>
+        <query>index=syslog sshd process=sshd
+      |fields source | dedup source </query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="src_ip" searchWhenChanged="true">
+      <label>Source IP</label>
+      <search>
+        <query>index=syslog sshd process=sshd source IN ( $selected_source$ )
+      |fields src_ip | dedup src_ip</query>
+      </search>
+      <fieldForLabel>src_ip</fieldForLabel>
+      <fieldForValue>src_ip</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Source IP GeoIP HeatMap</title>
+      <map>
+        <search>
+          <query>index=syslog sshd process=sshd $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
+    | fields src_ip user | iplocation src_ip
+| geostats latfield=lat longfield=lon count by user</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+        <option name="refresh.display">progressbar</option>
+      </map>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Connections Timeline Source IP</title>
+      <chart>
+        <search>
+          <query>index=syslog sshd process=sshd $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
+    | fields src_ip user| iplocation src_ip | timechart count by src_ip</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="clientip">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Details</title>
+      <table>
+        <search>
+          <query>index=syslog sshd process=sshd $text_filter$  src_ip IN ( $src_ip$ )  source IN ( $selected_source$ ) 
+    | table _time src_ip user
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>
