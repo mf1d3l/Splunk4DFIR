@@ -22,14 +22,14 @@
     </input>
     <input type="dropdown" token="index" searchWhenChanged="true">
       <label>Select Notables Only</label>
-      <choice value="notable_events">YES</choice>
-      <choice value="gcp">NO</choice>
-      <default>gcp</default>
+      <choice value="index=notable_events orig_sourcetype=gcp:audit">YES</choice>
+      <choice value="index=gcp sourcetype=gcp:audit">NO</choice>
+      <default>NO</default>
     </input>
     <input type="multiselect" token="clientip" searchWhenChanged="true">
       <label>Select Client IP</label>
       <search>
-        <query>index=$index$
+        <query>$index$
       |fields src_ip | dedup src_ip</query>
       </search>
       <fieldForLabel>src_ip</fieldForLabel>
@@ -43,7 +43,7 @@
     <input type="multiselect" token="useragent" searchWhenChanged="true">
       <label>Select User-Agent</label>
       <search>
-        <query>index=$index$ $ua_filter$ 
+        <query>$index$ $ua_filter$ 
       |fields http_user_agent | dedup http_user_agent | sort http_user_agent</query>
       </search>
       <fieldForLabel>http_user_agent</fieldForLabel>
@@ -57,7 +57,7 @@
     <input type="multiselect" token="user" searchWhenChanged="true">
       <label>Select User</label>
       <search>
-        <query>index=$index$  
+        <query>$index$  
       | fillnull value="N/A" user
       |fields user | dedup user | sort user</query>
       </search>
@@ -89,7 +89,7 @@
       <title>Client IP GeoIP HeatMap</title>
       <map>
         <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ src_ip  IN ( $clientip$ ) http_user_agent IN ( $useragent$ )
+          <query>$index$ $text_filter$ $ua_filter$ src_ip  IN ( $clientip$ ) http_user_agent IN ( $useragent$ )
      | fields src_ip http_user_agent | iplocation src_ip
      | geostats latfield=lat longfield=lon count by src_ip
      </query>
@@ -104,151 +104,11 @@
   </row>
   <row>
     <panel>
-      <title>Notables Distribution</title>
-      <chart>
-        <search>
-          <query>index=notable_events $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | stats count by source</query>
-          <earliest>$timepicker.earliest$</earliest>
-          <latest>$timepicker.latest$</latest>
-        </search>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.showDataLabels">none</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
-        <option name="refresh.display">progressbar</option>
-        <drilldown>
-          <set token="source">"$click.value$"</set>
-          <set token="index">notable_events</set>
-        </drilldown>
-      </chart>
-    </panel>
-    <panel>
-      <title>Notables Timeline</title>
-      <chart>
-        <search>
-          <query>index=notable_events $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | timechart count by source</query>
-          <earliest>$timepicker.earliest$</earliest>
-          <latest>$timepicker.latest$</latest>
-        </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.showDataLabels">none</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
-        <option name="refresh.display">progressbar</option>
-        <drilldown>
-          <set token="source">"$click.name2$"</set>
-          <set token="index">notable_events</set>
-        </drilldown>
-      </chart>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>AWS Region Distribution</title>
-      <chart>
-        <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | stats count by awsRegion</query>
-          <earliest>$timepicker.earliest$</earliest>
-          <latest>$timepicker.latest$</latest>
-        </search>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.showDataLabels">none</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
-        <option name="refresh.display">progressbar</option>
-        <drilldown>
-          <set token="awsRegion">"$click.value$"</set>
-        </drilldown>
-      </chart>
-    </panel>
-    <panel>
-      <title>Event Source Distribution</title>
-      <chart>
-        <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | stats count by eventSource </query>
-          <earliest>$timepicker.earliest$</earliest>
-          <latest>$timepicker.latest$</latest>
-        </search>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.showDataLabels">none</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
-        <option name="refresh.display">progressbar</option>
-        <drilldown>
-          <set token="eventSource">"$click.value$"</set>
-        </drilldown>
-      </chart>
-    </panel>
-    <panel>
-      <title>Event Type Distribution</title>
-      <chart>
-        <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | stats count by eventType</query>
-          <earliest>$timepicker.earliest$</earliest>
-          <latest>$timepicker.latest$</latest>
-        </search>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.showDataLabels">none</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
-        <option name="refresh.display">progressbar</option>
-        <drilldown>
-          <set token="eventType">"$click.value$"</set>
-        </drilldown>
-      </chart>
-    </panel>
-    <panel>
-      <title>Event Name Distribution</title>
-      <chart>
-        <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | stats count by eventName</query>
-          <earliest>$timepicker.earliest$</earliest>
-          <latest>$timepicker.latest$</latest>
-        </search>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.showDataLabels">none</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
-        <option name="refresh.display">progressbar</option>
-        <drilldown>
-          <set token="eventName">"$click.value$"</set>
-        </drilldown>
-      </chart>
-    </panel>
-  </row>
-  <row>
-    <panel>
       <title>Timeline Source IP</title>
       <chart>
         <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com" source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | timechart count by sourceIPAddress</query>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ )
+          | timechart count by src_ip</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -266,10 +126,8 @@
       <title>Timeline User-Agent</title>
       <chart>
         <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com" source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | timechart count by userAgent</query>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ )
+          | timechart count by http_user_agent</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -286,13 +144,11 @@
   </row>
   <row>
     <panel>
-      <title>Timeline User Name</title>
+      <title>Timeline User</title>
       <chart>
         <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com" source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | timechart count by userIdentity.userName</query>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ )
+          | timechart count by user</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -307,13 +163,11 @@
       </chart>
     </panel>
     <panel>
-      <title>Timeline Error Core</title>
+      <title>Timeline User</title>
       <chart>
         <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com" source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | timechart count by errorCode</query>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ )
+          | timechart count by method_name</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -323,7 +177,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
         <option name="refresh.display">progressbar</option>
         <drilldown>
-          <set token="errorCode">"$click.name2$"</set>
+          <set token="method_name">"$click.name2$"</set>
         </drilldown>
       </chart>
     </panel>
@@ -333,10 +187,8 @@
       <title>Client IP To User-Agent</title>
       <viz type="sankey_diagram_app.sankey_diagram">
         <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com" source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | stats count by sourceIPAddress userAgent</query>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ )
+          | stats count by src_ip http_user_agent</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -346,13 +198,11 @@
   </row>
   <row>
     <panel>
-      <title>Client IP To AWS Region</title>
+      <title>Client IP To user</title>
       <viz type="sankey_diagram_app.sankey_diagram">
         <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com" source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | stats count by sourceIPAddress awsRegion</query>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ )
+          | stats count by src_ip user</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -362,13 +212,25 @@
   </row>
   <row>
     <panel>
-      <title>Client IP To AWS service</title>
+      <title>User to Resource</title>
       <viz type="sankey_diagram_app.sankey_diagram">
         <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ )  eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) NOT sourceIPAddress="*.com" source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | stats count by sourceIPAddress eventSource</query>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ )
+          | stats count by user resource_name</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>User to Method</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ )
+          | stats count by user method_name</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -380,20 +242,18 @@
     <panel>
       <title>Details</title>
       <table>
-        <title>click on an eventID to drilldown into the event</title>
+        <title>click on an insertId to drilldown into the event</title>
         <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ ) eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) awsRegion IN ( $awsRegion$ ) eventCategory IN ( $eventCategory$ ) source IN ( $source$ )
-          | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-          | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-          | table _time source sourceIPAddress userAgent userIdentity.userName awsRegion eventSource eventType eventName errorCode eventID</query>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ )
+          | table _time source insertId severity src_ip http_user_agent user project_id service_name method_name resource_name </query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
         <option name="count">10</option>
         <option name="drilldown">cell</option>
         <drilldown>
-          <condition field="eventID">
-            <set token="show_event">"$row.eventID$"</set>
+          <condition field="insertId">
+            <set token="show_event">"$row.insertId$"</set>
           </condition>
         </drilldown>
       </table>
@@ -405,8 +265,8 @@
       <table>
         <title></title>
         <search>
-          <query>index=$index$ $show_event$ source IN ( $source$ )
-          | table _time source _raw</query>
+          <query>index=gcp sourcetype=gcp:audit $show_event$
+          | table _time insertId _raw</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
