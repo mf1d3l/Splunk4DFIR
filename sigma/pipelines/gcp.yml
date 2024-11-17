@@ -13,9 +13,9 @@ transformations:
         gcp.audit.method_name: "protoPayload.methodName"
         
     rule_conditions:
-    - type: logsource
-      product: gcp
-      service: gcp.audit
+      - type: logsource
+        product: gcp
+        service: gcp.audit
 
 name: Splunk Alert stanza Postprocessing
 priority: 20
