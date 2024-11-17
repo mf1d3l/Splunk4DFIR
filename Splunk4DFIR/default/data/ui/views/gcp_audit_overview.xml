@@ -16,24 +16,24 @@
     </input>
     <input type="dropdown" token="ua_filter" searchWhenChanged="true">
       <label>Select suspicious UA Only</label>
-      <choice value="[ |inputlookup suspicious_http_user_agents_list.csv | fields http_user_agent | rename http_user_agent as userAgent ]">YES</choice>
+      <choice value="[ |inputlookup suspicious_http_user_agents_list.csv | fields http_user_agent ]">YES</choice>
       <choice value="">NO</choice>
       <default></default>
     </input>
     <input type="dropdown" token="index" searchWhenChanged="true">
       <label>Select Notables Only</label>
       <choice value="notable_events">YES</choice>
-      <choice value="cloudtrail">NO</choice>
-      <default>cloudtrail</default>
+      <choice value="gcp">NO</choice>
+      <default>gcp</default>
     </input>
     <input type="multiselect" token="clientip" searchWhenChanged="true">
       <label>Select Client IP</label>
       <search>
-        <query>index=$index$ NOT sourceIPAddress="*.com"
-      |fields sourceIPAddress | dedup sourceIPAddress</query>
+        <query>index=$index$
+      |fields src_ip | dedup src_ip</query>
       </search>
-      <fieldForLabel>sourceIPAddress</fieldForLabel>
-      <fieldForValue>sourceIPAddress</fieldForValue>
+      <fieldForLabel>src_ip</fieldForLabel>
+      <fieldForValue>src_ip</fieldForValue>
       <delimiter> , </delimiter>
       <default>*</default>
       <valuePrefix>"</valuePrefix>
@@ -44,110 +44,25 @@
       <label>Select User-Agent</label>
       <search>
         <query>index=$index$ $ua_filter$ 
-      |fields userAgent | dedup userAgent | sort userAgent</query>
+      |fields http_user_agent | dedup http_user_agent | sort http_user_agent</query>
       </search>
-      <fieldForLabel>userAgent</fieldForLabel>
-      <fieldForValue>userAgent</fieldForValue>
+      <fieldForLabel>http_user_agent</fieldForLabel>
+      <fieldForValue>http_user_agent</fieldForValue>
       <delimiter> , </delimiter>
       <default>*</default>
       <valuePrefix>"</valuePrefix>
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
-    <input type="multiselect" token="username" searchWhenChanged="true">
-      <label>Select User Name</label>
+    <input type="multiselect" token="user" searchWhenChanged="true">
+      <label>Select User</label>
       <search>
         <query>index=$index$  
-      | fillnull value="N/A" userIdentity.userName
-      |fields userIdentity.userName | dedup userIdentity.userName | sort userIdentity.userName</query>
+      | fillnull value="N/A" user
+      |fields user | dedup user | sort user</query>
       </search>
-      <fieldForLabel>userIdentity.userName</fieldForLabel>
-      <fieldForValue>userIdentity.userName</fieldForValue>
-      <delimiter> , </delimiter>
-      <default>*</default>
-      <valuePrefix>"</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <choice value="*">ALL</choice>
-    </input>
-    <input type="multiselect" token="eventCategory" searchWhenChanged="true">
-      <label>Select Event Category</label>
-      <search>
-        <query>index=$index$ $ua_filter$ 
-      |fields eventCategory | dedup eventCategory | sort eventCategory</query>
-      </search>
-      <fieldForLabel>eventCategory</fieldForLabel>
-      <fieldForValue>eventCategory</fieldForValue>
-      <delimiter> , </delimiter>
-      <default>*</default>
-      <valuePrefix>"</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <choice value="*">ALL</choice>
-    </input>
-    <input type="multiselect" token="eventType" searchWhenChanged="true">
-      <label>Select Event Type</label>
-      <search>
-        <query>index=$index$ $ua_filter$ 
-      |fields eventType | dedup eventType | sort eventType</query>
-      </search>
-      <fieldForLabel>eventType</fieldForLabel>
-      <fieldForValue>eventType</fieldForValue>
-      <delimiter> , </delimiter>
-      <default>*</default>
-      <valuePrefix>"</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <choice value="*">ALL</choice>
-    </input>
-    <input type="multiselect" token="eventName" searchWhenChanged="true">
-      <label>Select Event Name</label>
-      <search>
-        <query>index=$index$ $ua_filter$ 
-      |fields eventName | dedup eventName | sort eventName </query>
-      </search>
-      <fieldForLabel>eventName</fieldForLabel>
-      <fieldForValue>eventName</fieldForValue>
-      <delimiter> , </delimiter>
-      <default>*</default>
-      <valuePrefix>"</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <choice value="*">ALL</choice>
-    </input>
-    <input type="multiselect" token="eventSource" searchWhenChanged="true">
-      <label>Select Event Source</label>
-      <search>
-        <query>index=$index$ $ua_filter$ 
-      |fields eventSource | dedup eventSource | sort eventSource</query>
-      </search>
-      <fieldForLabel>eventSource</fieldForLabel>
-      <fieldForValue>eventSource</fieldForValue>
-      <delimiter> , </delimiter>
-      <default>*</default>
-      <valuePrefix>"</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <choice value="*">ALL</choice>
-    </input>
-    <input type="multiselect" token="errorCode" searchWhenChanged="true">
-      <label>Select ErrorCode</label>
-      <search>
-        <query>index=$index$ $ua_filter$ 
-      | fillnull value="Success" errorCode
-      | fields errorCode | dedup errorCode | sort errorCode</query>
-      </search>
-      <fieldForLabel>errorCode</fieldForLabel>
-      <fieldForValue>errorCode</fieldForValue>
-      <delimiter> , </delimiter>
-      <default>*</default>
-      <valuePrefix>"</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <choice value="*">ALL</choice>
-    </input>
-    <input type="multiselect" token="awsRegion" searchWhenChanged="true">
-      <label>Select AWS Region</label>
-      <search>
-        <query>index=$index$ $ua_filter$ 
-      |fields awsRegion | dedup awsRegion | sort awsRegion </query>
-      </search>
-      <fieldForLabel>awsRegion</fieldForLabel>
-      <fieldForValue>awsRegion</fieldForValue>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
       <delimiter> , </delimiter>
       <default>*</default>
       <valuePrefix>"</valuePrefix>
@@ -157,7 +72,7 @@
     <input type="multiselect" token="source" searchWhenChanged="true">
       <label>Select Notable source</label>
       <search>
-        <query>index=notable_events 
+        <query>index=notable_events orig_sourcetype=gcp:audit
       |fields source | dedup source | sort source </query>
       </search>
       <fieldForLabel>source</fieldForLabel>
@@ -174,11 +89,9 @@
       <title>Client IP GeoIP HeatMap</title>
       <map>
         <search>
-          <query>index=$index$ $text_filter$ $ua_filter$ sourceIPAddress IN ( $clientip$ ) userAgent IN ( $useragent$ ) eventType IN ( $eventType$ ) eventSource IN ( $eventSource$ ) eventName IN ( $eventName$ ) eventCategory IN ( $eventCategory$ ) awsRegion IN ( $awsRegion$ ) NOT sourceIPAddress="*.com" source IN ( $source$ )
-     | fillnull value="N/A" userIdentity.userName | search userIdentity.userName IN ( $username$ )
-     | fillnull value="Success" errorCode | search errorCode IN ( $errorCode$ )
-     | fields sourceIPAddress userAgent | iplocation sourceIPAddress
-     | geostats latfield=lat longfield=lon count by sourceIPAddress
+          <query>index=$index$ $text_filter$ $ua_filter$ src_ip  IN ( $clientip$ ) http_user_agent IN ( $useragent$ )
+     | fields src_ip http_user_agent | iplocation src_ip
+     | geostats latfield=lat longfield=lon count by src_ip
      </query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
