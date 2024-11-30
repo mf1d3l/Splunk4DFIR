@@ -1,0 +1,329 @@
+<form version="1.1" theme="dark">
+  <label>GCP Audit Overview</label>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="dropdown" token="ua_filter" searchWhenChanged="true">
+      <label>Select suspicious UA Only</label>
+      <choice value="[ |inputlookup suspicious_http_user_agents_list.csv | fields http_user_agent ]">YES</choice>
+      <choice value="">NO</choice>
+      <default></default>
+    </input>
+    <input type="dropdown" token="index" searchWhenChanged="true">
+      <label>Select Notables Only</label>
+      <choice value="index=notable_events orig_sourcetype=gcp:audit">YES</choice>
+      <choice value="index=gcp sourcetype=gcp:audit">NO</choice>
+      <default>NO</default>
+    </input>
+    <input type="dropdown" token="regex" searchWhenChanged="true">
+      <label>Select IPv4 source IP only</label>
+      <choice value="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">YES</choice>
+      <choice value=".*">NO</choice>
+      <default>NO</default>
+    </input>
+    <input type="multiselect" token="clientip" searchWhenChanged="true">
+      <label>Select Client IP</label>
+      <search>
+        <query>$index$ | regex src_ip="$regex$"
+      |fields src_ip | dedup src_ip</query>
+      </search>
+      <fieldForLabel>src_ip</fieldForLabel>
+      <fieldForValue>src_ip</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="useragent" searchWhenChanged="true">
+      <label>Select User-Agent</label>
+      <search>
+        <query>$index$ $ua_filter$ | regex src_ip="$regex$"
+      |fields http_user_agent | dedup http_user_agent | sort http_user_agent</query>
+      </search>
+      <fieldForLabel>http_user_agent</fieldForLabel>
+      <fieldForValue>http_user_agent</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="user" searchWhenChanged="true">
+      <label>Select User</label>
+      <search>
+        <query>$index$  | regex src_ip="$regex$"
+      | fillnull value="N/A" user 
+      |fields user | dedup user | sort user</query>
+      </search>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="project_id" searchWhenChanged="true">
+      <label>Select Project</label>
+      <search>
+        <query>$index$  | regex src_ip="$regex$"
+      | fillnull value="N/A" project_id
+      |fields project_id | dedup project_id | sort project_id</query>
+      </search>
+      <fieldForLabel>project_id</fieldForLabel>
+      <fieldForValue>project_id</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="service_name" searchWhenChanged="true">
+      <label>Select Service</label>
+      <search>
+        <query>$index$  | regex src_ip="$regex$"
+      | fillnull value="N/A" service_name
+      |fields service_name | dedup service_name | sort service_name</query>
+      </search>
+      <fieldForLabel>service_name</fieldForLabel>
+      <fieldForValue>service_name</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="method_name" searchWhenChanged="true">
+      <label>Select Method</label>
+      <search>
+        <query>$index$  | regex src_ip="$regex$"
+      | fillnull value="N/A" method_name
+      |fields method_name | dedup method_name | sort method_name</query>
+      </search>
+      <fieldForLabel>method_name</fieldForLabel>
+      <fieldForValue>method_name</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="source" searchWhenChanged="true">
+      <label>Select Notable source</label>
+      <search>
+        <query>index=notable_events orig_sourcetype=gcp:audit | regex src_ip="$regex$"
+      |fields source | dedup source | sort source </query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Client IP GeoIP HeatMap</title>
+      <map>
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip  IN ( $clientip$ ) http_user_agent IN ( $useragent$ ) user IN ( $user$ ) project_id IN ( $project_id$ ) service_name IN ( $service_name$ ) method_name IN ( $method_name$ ) source IN ( $source$ ) | regex src_ip="$regex$"
+     | fields src_ip http_user_agent | iplocation src_ip
+     | geostats latfield=lat longfield=lon count by src_ip
+     </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+        <option name="refresh.display">progressbar</option>
+      </map>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timeline Source IP</title>
+      <chart>
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ ) project_id IN ( $project_id$ ) service_name IN ( $service_name$ ) method_name IN ( $method_name$ ) source IN ( $source$ ) | regex src_ip="$regex$"
+          | timechart count by src_ip</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="clientip">$click.name2$</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Timeline User-Agent</title>
+      <chart>
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ ) project_id IN ( $project_id$ ) service_name IN ( $service_name$ ) method_name IN ( $method_name$ ) source IN ( $source$ ) | regex src_ip="$regex$"
+          | timechart count by http_user_agent</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="useragent">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Timeline User</title>
+      <chart>
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ ) project_id IN ( $project_id$ ) service_name IN ( $service_name$ ) method_name IN ( $method_name$ ) source IN ( $source$ ) | regex src_ip="$regex$"
+          | timechart count by user</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="user">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Timeline Methods</title>
+      <chart>
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ ) project_id IN ( $project_id$ ) service_name IN ( $service_name$ ) method_name IN ( $method_name$ ) source IN ( $source$ ) | regex src_ip="$regex$"
+          | timechart count by method_name</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="method_name">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Client IP To User-Agent</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ ) project_id IN ( $project_id$ ) service_name IN ( $service_name$ ) method_name IN ( $method_name$ ) source IN ( $source$ ) | regex src_ip="$regex$"
+          | stats count by src_ip http_user_agent</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Client IP To user</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ ) project_id IN ( $project_id$ ) service_name IN ( $service_name$ ) method_name IN ( $method_name$ ) source IN ( $source$ ) | regex src_ip="$regex$"
+          | stats count by src_ip user</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>User to Resource</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ ) project_id IN ( $project_id$ ) service_name IN ( $service_name$ ) method_name IN ( $method_name$ ) source IN ( $source$ ) | regex src_ip="$regex$"
+          | stats count by user resource_name</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>User to Method</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ ) project_id IN ( $project_id$ ) service_name IN ( $service_name$ ) method_name IN ( $method_name$ ) source IN ( $source$ ) | regex src_ip="$regex$"
+          | stats count by user method_name</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Details</title>
+      <table>
+        <title>click on an insertId to drilldown into the event</title>
+        <search>
+          <query>$index$ $text_filter$ $ua_filter$ src_ip IN ( $clientip$ ) http_user_agent  IN ( $useragent$ ) user IN ( $user$ ) project_id IN ( $project_id$ ) service_name IN ( $service_name$ ) method_name IN ( $method_name$ ) source IN ( $source$ ) | regex src_ip="$regex$"
+          | table _time source insertId severity src_ip http_user_agent user project_id service_name method_name resource_name </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <condition field="insertId">
+            <set token="show_event">"$row.insertId$"</set>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Event Drilldown</title>
+      <table>
+        <title></title>
+        <search>
+          <query>index=gcp sourcetype=gcp:audit $show_event$
+          | table _time insertId _raw</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>

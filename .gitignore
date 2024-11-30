@@ -5,6 +5,7 @@ artifacts/supertimelines/*
 artifacts/timelines/*
 artifacts/evtx/*
 artifacts/cloudtrail/*
+artifacts/gcp/*
 artifacts/pcap/*
 artifacts/zeek/*
 artifacts/suricata/*
