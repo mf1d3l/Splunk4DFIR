@@ -10,7 +10,7 @@
     <latest>$timepicker.latest$</latest>
   </search>
    <search base="base" id="filtered_base">
-    <query> | search metadata_keyword_type IN ( $selected_type$ ) metadata_category IN ( $selected_category$ ) metadata_tool IN ( $selected_tool$ ) </query>
+    <query> | search metadata_keyword_type IN ( $selected_type$ ) metadata_category IN ( $selected_category$ ) metadata_tool IN ( $selected_tool$ ) keyword_detection IN ( $selected_kw$ )</query>
   </search>
   <fieldset submitButton="true">
     <input type="time" token="timepicker">
@@ -65,6 +65,19 @@
       <valueSuffix>"</valueSuffix>
       <choice value="*">ALL</choice>
     </input>
+    <input type="multiselect" token="selected_kw" searchWhenChanged="true">
+      <label>Select Keyword</label>
+      <search base="base">
+        <query>| stats count by keyword_detection | dedup keyword_detection</query>
+      </search>
+      <fieldForLabel>keyword_detection</fieldForLabel>
+      <fieldForValue>keyword_detection</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
   </fieldset>
   <row>
     <panel>
@@ -96,6 +109,36 @@
       </chart>
     </panel>
   </row>
+ <row>
+    <panel>
+      <title>Top Keywords Hits</title>
+      <table>
+        <search base="filtered_base">
+          <query>
+| stats count by metadata_category metadata_keyword_type metadata_tool keyword_detection
+| sort - count
+</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="selected_kw">"$click.value2$"</set>
+        </drilldown>
+        <format type="color" field="metadata_keyword_type">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="metadata_tool">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="metadata_category">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>Keywords Hits</title>
@@ -107,6 +150,18 @@
         </search>
         <option name="count">10</option>
         <option name="drilldown">cell</option>
+<format type="color" field="metadata_tool">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="metadata_keyword_type">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="metadata_category">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
       </table>
     </panel>
   </row>
