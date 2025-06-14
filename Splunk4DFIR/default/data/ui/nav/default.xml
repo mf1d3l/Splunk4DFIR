@@ -34,6 +34,7 @@
   <collection label="Cloud">
     <view name="aws_cloudtrail_overview" />
     <view name="gcp_audit_overview" />
+    <view name="suzaku_aws" />
   </collection> 
   <collection label="Syslog">
     <view name="webaccesslogs_hunt" />
