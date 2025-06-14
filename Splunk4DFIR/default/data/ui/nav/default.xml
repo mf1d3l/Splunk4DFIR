@@ -6,6 +6,7 @@
   </collection> 
   <collection label="WinEventLog">
     <view name="logon_events" />
+    <view name="hayabusa" />
   </collection> 
   <collection label="MemProcFS">
     <view name="memprocfs_evil" />
@@ -41,7 +42,6 @@
     <view name="ssh_logons" />
   </collection> 
   <view name="autorunsc" />
-  <view name="hayabusa" />
   <view name="loldrivers" />
   <collection label="Default"> 
   <view name="search" default="yes"/>
