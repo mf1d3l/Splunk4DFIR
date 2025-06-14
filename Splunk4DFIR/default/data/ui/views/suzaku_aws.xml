@@ -1,0 +1,377 @@
+<form version="1.1" theme="dark">
+  <label>Suzaku AWS</label>
+  <search id="base">
+    <query> `suzakuaws` $text_filter$ $ua_filter$
+| fields _time source RuleID RuleTitle Level EventID EventName EventSource AWS_Region UserName UserPrincipalID UserAccountID UserAccessKeyID UserARN UserType SrcIP UserAgent
+</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <search id="filtered_base" base="base">
+    <query>
+| search  RuleTitle IN ( $selected_rule$ ) source IN ( $selected_source$ ) Level IN ( $selected_level$ )  AWS_Region IN ( $selected_awsregion$ ) EventSource IN ( $selected_eventsource$ ) UserName IN ( $selected_username$ ) SrcIP IN ( $selected_srcip$ ) UserAgent IN ( $selected_ua$ ) 
+| table  _time source RuleID RuleTitle Level EventID EventName EventSource AWS_Region UserName UserPrincipalID UserAccountID UserAccessKeyID UserARN UserType SrcIP UserAgent</query>
+  </search>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="dropdown" token="ua_filter" searchWhenChanged="true">
+      <label>Select suspicious UA Only</label>
+      <choice value="[ |inputlookup suspicious_http_user_agents_list.csv | fields http_user_agent | rename http_user_agent as UserAgent ]">YES</choice>
+      <choice value="">NO</choice>
+      <default></default>
+    </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source file</label>
+      <search base="base">
+        <query>| stats count by source | dedup source</query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_rule" searchWhenChanged="true">
+      <label>Select Rule</label>
+      <search base="base">
+        <query>| stats count by RuleTitle | dedup RuleTitle</query>
+      </search>
+      <fieldForLabel>RuleTitle</fieldForLabel>
+      <fieldForValue>RuleTitle</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_level" searchWhenChanged="true">
+      <label>Select Alert Level</label>
+      <search base="base">
+        <query>| stats count by Level | dedup Level</query>
+      </search>
+      <fieldForLabel>Level</fieldForLabel>
+      <fieldForValue>Level</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_awsregion" searchWhenChanged="true">
+      <label>Select AWS Region</label>
+      <search base="base">
+        <query>| stats count by AWS_Region | dedup AWS_Region</query>
+      </search>
+      <fieldForLabel>AWS_Region</fieldForLabel>
+      <fieldForValue>AWS_Region</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_eventsource" searchWhenChanged="true">
+      <label>Select EventSource</label>
+      <search base="base">
+        <query>| stats count by EventSource | dedup EventSource</query>
+      </search>
+      <fieldForLabel>EventSource</fieldForLabel>
+      <fieldForValue>EventSource</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_srcip" searchWhenChanged="true">
+      <label>Select SrcIP</label>
+      <search base="base">
+        <query>| stats count by SrcIP | dedup SrcIP</query>
+      </search>
+      <fieldForLabel>SrcIP</fieldForLabel>
+      <fieldForValue>SrcIP</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_username" searchWhenChanged="true">
+      <label>Select UserName</label>
+      <search base="base">
+        <query>| stats count by UserName | dedup UserName</query>
+      </search>
+      <fieldForLabel>UserName</fieldForLabel>
+      <fieldForValue>UserName</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="selected_ua" searchWhenChanged="true">
+      <label>Select UserAgent</label>
+      <search base="base">
+        <query>| stats count by UserAgent | dedup UserAgent</query>
+      </search>
+      <fieldForLabel>UserAgent</fieldForLabel>
+      <fieldForValue>UserAgent</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Client IP GeoIP HeatMap</title>
+      <map>
+        <search base="filtered_base">
+          <query>
+     | fields SrcIP UserName | iplocation SrcIP
+     | geostats latfield=lat longfield=lon count by UserName
+     </query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+        <option name="refresh.display">progressbar</option>
+      </map>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Alert Level Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by Level</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_level">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>UserName Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by UserName</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_username">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>SrcIP Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by SrcIP</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_srcip">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>UserAgent Distribution</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| stats count by UserAgent</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="selected_ua">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Alert Level Timeline</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| timechart count by Level </query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="selected_level">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Rule Timeline</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| timechart count by RuleTitle</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="selected_rule">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>UserName Timeline</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| timechart count by UserName</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="selected_username">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>SrcIP Timeline</title>
+      <chart>
+        <search base="filtered_base">
+          <query>
+| timechart count by SrcIP</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="selected_srcip">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>SrcIP To UserAgent</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search base="filtered_base">
+          <query>
+          | stats count by SrcIP UserAgent</query>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+ <row>
+    <panel>
+      <title>SrcIP To UserName</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search base="filtered_base">
+          <query>
+          | stats count by SrcIP UserName</query>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+ <row>
+    <panel>
+      <title>SrcIP To EventSource</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search base="filtered_base">
+          <query>
+          | stats count by SrcIP EventSource</query>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Suzaku detections - aggregated by UserName</title>
+      <table>
+        <search base="filtered_base">
+          <query>
+| stats count min(_time) as earliest_time max(_time) as latest_time  by UserName | sort - count
+| table earliest_time latest_time count UserName 
+| convert ctime(*_time)</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="selected_username">"$click.value2$"</set>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Suzaku detections - aggregated by SrcIP</title>
+      <table>
+        <search base="filtered_base">
+          <query>
+| stats count min(_time) as earliest_time max(_time) as latest_time  by SrcIP | sort - count
+| table earliest_time latest_time count SrcIP 
+| convert ctime(*_time)</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="selected_srcip">"$click.value2$"</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Suzaku detections - aggregated by Rule</title>
+      <table>
+        <search base="filtered_base">
+          <query>
+| stats count min(_time) as earliest_time max(_time) as latest_time by Level RuleTitle | sort - count
+| table earliest_time latest_time count Level RuleTitle
+| convert ctime(*_time)</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="selected_rule">"$click.value2$"</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Suzaku detections - all events</title>
+      <table>
+        <search base="filtered_base">
+          <query>
+| table  _time source RuleID RuleTitle Level SrcIP UserName UserAgent EventSource AWS_Region EventName EventID UserPrincipalID UserAccountID UserAccessKeyID UserARN UserType</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>
