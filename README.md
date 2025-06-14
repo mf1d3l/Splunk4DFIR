@@ -13,6 +13,7 @@ This is a simple quality of life improvement project built upon the amazing work
 - https://github.com/splunk/docker-splunk
 - https://github.com/SigmaHQ
 - https://github.com/Yamato-Security/hayabusa
+- https://github.com/Yamato-Security/suzaku
 - https://github.com/mthcht/ThreatHunting-Keywords
 - https://github.com/mthcht/awesome-lists
 - https://github.com/magicsword-io/LOLDrivers
@@ -72,6 +73,7 @@ additionnaly some [macros](Splunk4DFIR/default/macros.conf) are configurable to 
 - `timeline`: points to simple timeline files
 - `winevtx`: points to EvtxECmd csv output files
 - `hayabusa`: points to hayabusa csv output files
+- `suzakuaws`: points to suzaku aws csv timeline output files
 
 
 ## Ingest evtx as json
