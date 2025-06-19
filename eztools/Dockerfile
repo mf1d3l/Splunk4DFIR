@@ -3,7 +3,7 @@
 FROM debian:bookworm
 
 RUN apt update
-RUN apt install -y wget apt-transport-https software-properties-common unzip
+RUN apt install -y wget apt-transport-https software-properties-common unzip sleuthkit
 
 # install dotnet
 RUN wget https://builds.dotnet.microsoft.com/dotnet/scripts/v1/dotnet-install.sh -O /tmp/dotnet-install.sh && chmod +x /tmp/dotnet-install.sh
