@@ -39,5 +39,4 @@ for USERPATH in $(find "$INPUT_PATH" -type f -name UsrClass.dat | grep -oP '.*/U
   $sbecmd -d $USERPATH --csv "$OUTPUT_PATH" --csvf SBECmd_$USER.csv
   find "$USERPATH" -type d -wholename '*/Microsoft/Windows/Recent' -exec $lecmd -d {} --csv "$OUTPUT_PATH" --csvf LECmd_$USER.csv \;
   find "$USERPATH" -type d -wholename '*/Microsoft/Windows/Recent/AutomaticDestinations' -exec $jlecmd -d {} --csv "$OUTPUT_PATH" --csvf JLECmd_$USER.csv \;
-  find "$USERPATH" -type f -name 'ActivitiesCache.db' -exec $wxtcmd -f {} --csv "$OUTPUT_PATH" \;
 done
