@@ -10,7 +10,7 @@ jlecmd='dotnet /opt/JLECmd/JLECmd.dll'
 rbcmd='dotnet /opt/RBCmd/RBCmd.dll'
 evtxecmd='dotnet /opt/EvtxECmd/EvtxeCmd/EvtxECmd.dll'
 sbecmd='dotnet /opt/SBECmd/SBECmd.dll'
-sqlecmd='dotnet dotnet /opt/SQLECmd/SQLECmd/SQLECmd.dll'
+sqlecmd='dotnet /opt/SQLECmd/SQLECmd/SQLECmd.dll'
 srumecmd='dotnet /opt/SrumECmd/SrumECmd.dll'
 sumecmd='dotnet /opt/SumECmd/SumECmd.dll'
 wxtcmd='dotnet /opt/WxTCmd/WxTCmd.dll'
@@ -32,10 +32,12 @@ $recmd --bn /opt/RECmd/RECmd/BatchExamples/Kroll_Batch.reb -d "$INPUT_PATH" --cs
 find "$INPUT_PATH" -type f -wholename '*/Windows/System32/config/SYSTEM' -exec $appcompatcacheparser -f {} --csv "$OUTPUT_PATH" \;
 find "$INPUT_PATH" -type f -name 'Amcache.hve' -exec $amcacheparser -f {} --csv "$OUTPUT_PATH" \;
 find "$INPUT_PATH" -type d -wholename '*/winevt/logs' -exec $evtxecmd -d {} --csv "$OUTPUT_PATH" \;
+find "$INPUT_PATH" -type d -name '$Recycle.Bin' -exec $rbcmd -d {} --csv "$OUTPUT_PATH" \;
 
 for USERPATH in $(find "$INPUT_PATH" -type f -name UsrClass.dat | grep -oP '.*/Users/[^/]+' ) ;do
   USER=$(echo $USERPATH | grep -oP "[^/]+$");
   $sbecmd -d $USERPATH --csv "$OUTPUT_PATH" --csvf SBECmd_$USER.csv
   find "$USERPATH" -type d -wholename '*/Microsoft/Windows/Recent' -exec $lecmd -d {} --csv "$OUTPUT_PATH" --csvf LECmd_$USER.csv \;
   find "$USERPATH" -type d -wholename '*/Microsoft/Windows/Recent/AutomaticDestinations' -exec $jlecmd -d {} --csv "$OUTPUT_PATH" --csvf JLECmd_$USER.csv \;
+  find "$USERPATH" -type f -name 'ActivitiesCache.db' -exec $wxtcmd -f {} --csv "$OUTPUT_PATH" \;
 done
