@@ -136,6 +136,10 @@ sudo docker run -it -v ./artifacts:/mnt/artifacts --name suricata --rm suricata 
 
 ## Windows Endpoint artifacts processing with EZ Tools
 
+A Dockerfile is provided in this project to run you favourite cli tools from [Eric Zimmerman's tools suite](https://ericzimmerman.github.io/#!index.md) in a linux container. Mind though that unfortunately PECmd is not supported on linux so no prefetch parsing for you if you're on linux only.
 
-
-
+```
+sudo docker build -t eztools eztools/
+sudo docker run -it --rm --name eztools -v ./artifacts:/mnt/artifacts eztools:latest bash -ic mftecmd -h
+sudo docker run -it --rm --name eztools -v ./artifacts:/mnt/artifacts eztools:latest /opt/run_eztools.sh /mnt/artifacts/raw /mnt/artifacts/csv
+```
