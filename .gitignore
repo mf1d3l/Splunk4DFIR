@@ -1,13 +1,2 @@
-artifacts/syslog/*
-artifacts/json/*
-artifacts/csv/*
-artifacts/supertimelines/*
-artifacts/timelines/*
-artifacts/evtx/*
-artifacts/cloudtrail/*
-artifacts/gcp/*
-artifacts/pcap/*
-artifacts/zeek/*
-artifacts/suricata/*
-artifacts/memprocfs/*
+artifacts/*
 sigma/rules/*
