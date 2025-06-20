@@ -134,6 +134,8 @@ sudo docker build -t suricata suricata/
 sudo docker run -it -v ./artifacts:/mnt/artifacts --name suricata --rm suricata suricata -S /var/lib/suricata/rules/suricata.rules -r /mnt/artifacts/pcap/packetcapture.pcapng -l /mnt/artifacts/suricata
 ```
 
+## Windows Endpoint artifacts processing with EZ Tools
+
 
 
 
