@@ -52,6 +52,7 @@
   <view name="netscaler_http" />
   <view name="netscaler_shell" />
   <view name="netscaler_ns" />
+  <view name="netscaler_hunt" />
   </collection> 
   <view name="autorunsc" />
   <view name="loldrivers" />
