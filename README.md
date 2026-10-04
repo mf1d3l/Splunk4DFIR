@@ -64,6 +64,7 @@ If you dont see data being ingested, check the permissions of your artifacts fil
 - `artifacts/syslog/`: drop there linux syslog logs
 - `artifacts/gcp/`: drop there exported Google Cloud Plateform Audit logs
 - `artifacts/elastic_agent/`: drop there exported elastic agent json logs
+- `artifacts/netscaler/`: drop there netscaler logs or directly your extracted support bundles and uac acquisitions 
 
 additionnaly some [macros](Splunk4DFIR/default/macros.conf) are configurable to point to specific tools output sourcetypes such as:
 

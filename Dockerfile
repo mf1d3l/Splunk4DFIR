@@ -1,4 +1,6 @@
-FROM splunk/splunk:latest
+#FROM splunk/splunk:latest
+#hardcoding version to preserve legacy UI 
+FROM splunk/splunk:9.4.16
 
 RUN sudo microdnf -y --nodocs install jq git findutils
 COPY --chown=splunk:splunk ./Splunk4DFIR /opt/splunk/etc/apps/Splunk4DFIR
@@ -8,4 +10,5 @@ RUN sudo pip3 install -r /opt/splunk/etc/apps/Splunk4DFIR/bin/evtx2splunk/requir
 RUN sudo curl https://raw.githubusercontent.com/mthcht/ThreatHunting-Keywords/main/threathunting-keywords.csv -o /opt/splunk/etc/apps/Splunk4DFIR/lookups/threathunting-keywords.csv
 RUN sudo curl https://raw.githubusercontent.com/magicsword-io/LOLDrivers/main/loldrivers.io/content/api/drivers.csv -o /opt/splunk/etc/apps/Splunk4DFIR/lookups/loldrivers.csv
 RUN sudo curl https://raw.githubusercontent.com/mthcht/awesome-lists/main/Lists/suspicious_http_user_agents_list.csv -o /opt/splunk/etc/apps/Splunk4DFIR/lookups/suspicious_http_user_agents_list.csv
+RUN sudo curl  https://pitscaler.com/iocs.csv -o /opt/splunk/etc/apps/Splunk4DFIR/lookups/ioc_pitscaler.csv
 RUN sudo chown -R splunk:splunk /opt/splunk/etc/apps/Splunk4DFIR/lookups/

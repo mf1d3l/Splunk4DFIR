@@ -1,0 +1,151 @@
+<form version="1.1" theme="dark">
+  <label>NetScaler Hunt Dashboard</label>
+
+  <fieldset submitButton="true">
+
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+    </input>
+
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source log file</label>
+      <search>
+        <query>
+          `netscaler`
+          | fields source
+          | dedup source
+        </query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+
+  </fieldset>
+
+
+
+    <row>
+    <panel depends="$panel_ioc_show$">
+      <title>IOCs Matches</title>
+      <table>
+        <search>
+          <query>
+            `netscaler`  $text_filter$  [ | inputlookup ioc_pitscaler.csv | search type IN ("IPv4" "Domain" "URL") | fields value | rename value as query ]
+             source IN ( $selected_source$ )
+             | table _time source dvc _raw
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+          <progress>
+            <condition match="$job.resultCount$&gt;0">
+              <set token="panel_ioc_show">true</set>
+            </condition>
+            <condition match="$job.resultCount$=0">
+              <unset token="panel_ioc_show"/>
+            </condition>
+          </progress>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+
+
+  <row>
+    <panel depends="$panel1_show$">
+      <title>Possible exploitation attempts CVE-2026-88771</title>
+      <table>
+        <search>
+          <query>
+            `netscaler` $text_filter$  "pitboss" "missed too many" OR "unexpectedly died" "AAA" "SSLVPN Message" OR "AAATM Message" OR "AAA Message" OR "AAA LOGIN_FAILED"
+            source IN ( $selected_source$ )
+            | table _time source dvc event_source event_name src _raw
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+          <progress>
+            <condition match="$job.resultCount$&gt;0">
+              <set token="panel1_show">true</set>
+            </condition>
+            <condition match="$job.resultCount$=0">
+              <unset token="panel1_show"/>
+            </condition>
+          </progress>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+  
+  <row>
+    <panel depends="$panel2_show$">
+      <title>Possible exploitation attempts CVE-2026-88772</title>
+      <table>
+        <search>
+          <query>
+            `netscaler` $text_filter$  pitboss "NOT restarting NSPPE"
+            source IN ( $selected_source$ )
+            | table _time source dvc event_source event_name  _raw
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+          <progress>
+            <condition match="$job.resultCount$&gt;0">
+              <set token="panel2_show">true</set>
+            </condition>
+            <condition match="$job.resultCount$=0">
+              <unset token="panel2_show"/>
+            </condition>
+          </progress>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+  
+  <row>
+    <panel depends="$panel3_show$">
+      <title>Suspicious Shell Commands</title>
+      <table>
+        <search>
+          <query>
+            `netscaler-shell` $text_filter$  curl OR wget OR fetch OR "/dev/tcp" OR "/dev/udp" OR whoami OR b64decode OR b64encode OR subprocess OR spawn OR "exec(" command=*
+            source IN ( $selected_source$ )
+            | table _time source dvc app user command
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+          <progress>
+            <condition match="$job.resultCount$&gt;0">
+              <set token="panel3_show">true</set>
+            </condition>
+            <condition match="$job.resultCount$=0">
+              <unset token="panel3_show"/>
+            </condition>
+          </progress>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+  
+
+</form>
