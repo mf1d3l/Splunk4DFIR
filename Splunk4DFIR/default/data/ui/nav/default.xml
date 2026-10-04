@@ -47,12 +47,12 @@
     <view name="webaccesslogs_hunt" />
     <view name="ssh_logons" />
   </collection> 
-  <view name="autorunsc" />
-  <view name="loldrivers" />
   <collection label="Netscaler"> 
   <view name="netscaler_ssh" />
   <view name="netscaler_http" />
   <view name="netscaler_shell" />
   <view name="netscaler_ns" />
   </collection> 
+  <view name="autorunsc" />
+  <view name="loldrivers" />
 </nav>

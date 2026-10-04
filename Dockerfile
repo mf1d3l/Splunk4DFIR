@@ -1,4 +1,6 @@
-FROM splunk/splunk:latest
+#FROM splunk/splunk:latest
+#hardcoding version to preserve legacy UI 
+FROM splunk/splunk:9.4.16
 
 RUN sudo microdnf -y --nodocs install jq git findutils
 COPY --chown=splunk:splunk ./Splunk4DFIR /opt/splunk/etc/apps/Splunk4DFIR
