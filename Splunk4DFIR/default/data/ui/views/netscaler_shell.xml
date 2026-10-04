@@ -1,0 +1,348 @@
+<form version="1.1" theme="dark">
+  <label>NetScaler Shell Commands</label>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+      <prefix/>
+      <suffix/>
+    </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source log file</label>
+      <search>
+        <query>
+`netscaler-shell`
+| fields source
+| dedup source
+        </query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="shell_type" searchWhenChanged="true">
+      <label>Shell type</label>
+      <choice value="*">ALL</choice>
+      <choice value="bash">Bash</choice>
+      <choice value="sh">SH</choice>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> , </delimiter>
+    </input>
+    <input type="multiselect" token="dvc" searchWhenChanged="true">
+      <label>Device</label>
+      <search>
+        <query>
+`netscaler-shell`
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+| fields dvc
+| dedup dvc
+        </query>
+      </search>
+      <fieldForLabel>dvc</fieldForLabel>
+      <fieldForValue>dvc</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="process_id" searchWhenChanged="true">
+      <label>Process ID</label>
+      <search>
+        <query>
+`netscaler-shell`
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+| fields process_id
+| dedup process_id
+        </query>
+      </search>
+      <fieldForLabel>process_id</fieldForLabel>
+      <fieldForValue>process_id</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="user" searchWhenChanged="true">
+      <label>User</label>
+      <search>
+        <query>
+`netscaler-shell`
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+process_id IN ( $process_id$ )
+| eval command_binary=mvindex(split(command," "),0)
+| fillnull value="N/A" user command_binary
+| fields user
+| dedup user
+        </query>
+      </search>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="command_binary" searchWhenChanged="true">
+      <label>Command</label>
+      <search>
+        <query>
+`netscaler-shell`
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+process_id IN ( $process_id$ )
+| eval command_binary=mvindex(split(command," "),0)
+| fillnull value="N/A" user command_binary
+| fields command_binary
+| dedup command_binary
+        </query>
+      </search>
+      <fieldForLabel>command_binary</fieldForLabel>
+      <fieldForValue>command_binary</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Command Distribution</title>
+      <chart>
+        <search>
+          <query>
+`netscaler-shell` $text_filter$
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+process_id IN ( $process_id$ )
+| eval command_binary=mvindex(split(command," "),0)
+| fillnull value="N/A" user command_binary
+| search user IN ( $user$ ) command_binary IN ( $command_binary$ )
+| stats count by command_binary
+| sort - count
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="command_binary">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Device Distribution</title>
+      <chart>
+        <search>
+          <query>
+`netscaler-shell` $text_filter$
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+process_id IN ( $process_id$ )
+| eval command_binary=mvindex(split(command," "),0)
+| fillnull value="N/A" user command_binary
+| search user IN ( $user$ ) command_binary IN ( $command_binary$ )
+| stats count by dvc
+| sort - count
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="dvc">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>User Distribution</title>
+      <chart>
+        <search>
+          <query>
+`netscaler-shell` $text_filter$
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+process_id IN ( $process_id$ )
+| eval command_binary=mvindex(split(command," "),0)
+| fillnull value="N/A" user command_binary
+| search user IN ( $user$ ) command_binary IN ( $command_binary$ )
+| stats count by user
+| sort - count
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="user">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Shell Type Distribution</title>
+      <chart>
+        <search>
+          <query>
+`netscaler-shell` $text_filter$
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+process_id IN ( $process_id$ )
+| eval command_binary=mvindex(split(command," "),0)
+| fillnull value="N/A" user command_binary
+| search user IN ( $user$ ) command_binary IN ( $command_binary$ )
+| stats count by app
+| sort - count
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <set token="shell_type">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Command Timeline by User</title>
+      <chart>
+        <search>
+          <query>
+`netscaler-shell` $text_filter$
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+process_id IN ( $process_id$ )
+| eval command_binary=mvindex(split(command," "),0)
+| fillnull value="N/A" user command_binary
+| search user IN ( $user$ ) command_binary IN ( $command_binary$ )
+| timechart count by user
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="user">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Command Timeline by Device</title>
+      <chart>
+        <search>
+          <query>
+`netscaler-shell` $text_filter$
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+process_id IN ( $process_id$ )
+| eval command_binary=mvindex(split(command," "),0)
+| fillnull value="N/A" user command_binary
+| search user IN ( $user$ ) command_binary IN ( $command_binary$ )
+| timechart count by dvc
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="dvc">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Command Timeline by Command</title>
+      <chart>
+        <search>
+          <query>
+`netscaler-shell` $text_filter$
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+process_id IN ( $process_id$ )
+| eval command_binary=mvindex(split(command," "),0)
+| fillnull value="N/A" user command_binary
+| search user IN ( $user$ ) command_binary IN ( $command_binary$ )
+| timechart count by command_binary
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="command_binary">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Details</title>
+      <table>
+        <search>
+          <query>
+`netscaler-shell` $text_filter$
+source IN ( $selected_source$ )
+app IN ( $shell_type$ )
+dvc IN ( $dvc$ )
+process_id IN ( $process_id$ )
+| eval command_binary=mvindex(split(command," "),0)
+| fillnull value="N/A" user command_binary
+| search user IN ( $user$ ) command_binary IN ( $command_binary$ )
+| table _time dvc process_id user app command_binary command tty
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

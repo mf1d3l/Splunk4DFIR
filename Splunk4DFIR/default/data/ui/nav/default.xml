@@ -1,4 +1,10 @@
 <nav search_view="search">
+  <collection label="Default"> 
+  <view name="search" default="yes"/>
+  <view name="reports" />
+  <view name="alerts" />
+  <view name="dashboards" />
+  </collection> 
   <collection label="Sigma Rules">
     <view name="sigma_rule_catalogue"/>
     <view name="sigma_rule_hits"/>
@@ -43,10 +49,10 @@
   </collection> 
   <view name="autorunsc" />
   <view name="loldrivers" />
-  <collection label="Default"> 
-  <view name="search" default="yes"/>
-  <view name="reports" />
-  <view name="alerts" />
-  <view name="dashboards" />
+  <collection label="Netscaler"> 
+  <view name="netscaler_ssh" />
+  <view name="netscaler_http" />
+  <view name="netscaler_shell" />
+  <view name="netscaler_ns" />
   </collection> 
 </nav>

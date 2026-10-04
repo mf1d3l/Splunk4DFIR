@@ -1,0 +1,238 @@
+<form version="1.1" theme="dark">
+  <label>NetScaler Application Events (ns.log)</label>
+  <fieldset submitButton="true">
+    <input type="time" token="timepicker">
+      <label>Time span</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="text_filter">
+      <label>Free SPL input</label>
+      <default>*</default>
+    </input>
+    <input type="multiselect" token="selected_source" searchWhenChanged="true">
+      <label>Select source log file</label>
+      <search>
+        <query>
+          `netscaler-ns` dvc=* event_source=* event_name=* 
+          | fields source 
+          | dedup source
+        </query>
+      </search>
+      <fieldForLabel>source</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="dvc" searchWhenChanged="true">
+      <label>Device</label>
+      <search>
+        <query>
+          `netscaler-ns` dvc=* event_source=* event_name=* source IN ( $selected_source$ )
+          | fields dvc 
+          | dedup dvc
+        </query>
+      </search>
+      <fieldForLabel>dvc</fieldForLabel>
+      <fieldForValue>dvc</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="event_source" searchWhenChanged="true">
+      <label>Event Source</label>
+      <search>
+        <query>
+          `netscaler-ns` dvc=* event_source=* event_name=* source IN ( $selected_source$ )
+          | fields event_source 
+          | dedup event_source
+        </query>
+      </search>
+      <fieldForLabel>event_source</fieldForLabel>
+      <fieldForValue>event_source</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+    <input type="multiselect" token="event_name" searchWhenChanged="true">
+      <label>Event Name</label>
+      <search>
+        <query>
+          `netscaler-ns` dvc=* event_source=* event_name=* source IN ( $selected_source$ )
+          | fields event_name 
+          | dedup event_name
+        </query>
+      </search>
+      <fieldForLabel>event_name</fieldForLabel>
+      <fieldForValue>event_name</fieldForValue>
+      <delimiter> , </delimiter>
+      <default>*</default>
+      <valuePrefix>"</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">ALL</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Event Timeline by Event Source</title>
+      <chart>
+        <search>
+          <query>
+            `netscaler-ns` dvc=* event_source=* event_name=* $text_filter$
+            dvc IN ( $dvc$ )
+            event_source IN ( $event_source$ )
+            event_name IN ( $event_name$ )
+            source IN ( $selected_source$ )
+            | fields _time dvc event_source event_name
+            | timechart count by event_source
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <drilldown>
+          <set token="event_source">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Event Timeline by Event Name</title>
+      <chart>
+        <search>
+          <query>
+            `netscaler-ns` dvc=* event_source=* event_name=* $text_filter$
+            dvc IN ( $dvc$ )
+            event_source IN ( $event_source$ )
+            event_name IN ( $event_name$ )
+            source IN ( $selected_source$ )
+            | fields _time dvc event_source event_name
+            | timechart count by event_name
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <drilldown>
+          <set token="event_name">"$click.name2$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Event Source Distribution</title>
+      <chart>
+        <search>
+          <query>
+            `netscaler-ns` dvc=* event_source=* event_name=* $text_filter$
+            dvc IN ( $dvc$ )
+            event_source IN ( $event_source$ )
+            event_name IN ( $event_name$ )
+            source IN ( $selected_source$ )
+            | stats count by event_source
+            | sort - count
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="event_source">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Event Name Distribution</title>
+      <chart>
+        <search>
+          <query>
+            `netscaler-ns` dvc=* event_source=* event_name=* $text_filter$
+            dvc IN ( $dvc$ )
+            event_source IN ( $event_source$ )
+            event_name IN ( $event_name$ )
+            source IN ( $selected_source$ )
+            | stats count by event_name
+            | sort - count
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <drilldown>
+          <set token="event_name">"$click.value$"</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Device → Event Source</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>
+            `netscaler-ns` dvc=* event_source=* event_name=* $text_filter$
+            dvc IN ( $dvc$ )
+            event_source IN ( $event_source$ )
+            event_name IN ( $event_name$ )
+            source IN ( $selected_source$ )
+            | stats count by dvc event_source
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="drilldown">all</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>Event Source → Event Name</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>
+            `netscaler-ns` dvc=* event_source=* event_name=* $text_filter$
+            dvc IN ( $dvc$ )
+            event_source IN ( $event_source$ )
+            event_name IN ( $event_name$ )
+            source IN ( $selected_source$ )
+            | stats count by event_source event_name
+          </query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="drilldown">all</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Event Details</title>
+      <table>
+        <search>
+          <query>`netscaler-ns` dvc=* event_source=* event_name=* $text_filter$
+            dvc IN ( $dvc$ )
+            event_source IN ( $event_source$ )
+            event_name IN ( $event_name$ )
+            source IN ( $selected_source$ )
+            | table _time dvc event_source event_name _raw</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>
